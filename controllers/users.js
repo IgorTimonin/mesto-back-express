@@ -27,7 +27,7 @@ module.exports.getAllUsers = (req, res) => {
 
 module.exports.getUserById = (req, res) => {
   User.findById(req.params.userId)
-    .then((user) => res.send({ user }))
+    .then((user) => res.send(user))
     .catch((err) =>
       res.status(500).send({
         message: `Запрашиваемый пользователь не найден.`,
@@ -72,7 +72,7 @@ module.exports.updateUserAvatar = (req, res) => {
 
 module.exports.deleteUser = (req, res) => {
   User.findByIdAndRemove(req.params.userId)
-    .then((user) => res.send(`Пользователь ${req.params.userId} удалён.`))
+    .then((user) => res.send(`Пользователь c id: ${req.params.userId} удалён.`))
     .catch((err) =>
       res.status(500).send({
         message: `Ошибка при удалении пользователя ${err.name} ${err.message}`,
