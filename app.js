@@ -12,15 +12,15 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 });
 
 app.use(express.json())
-app.use("/", userRouter);
-app.use("/", cardRouter);
 app.use((req, res, next) => {
   req.user = {
     _id: '62e52d8393af282fd8ba0dc8',
   };
-
   next();
 });
+app.use("/", userRouter);
+app.use("/", cardRouter);
+
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

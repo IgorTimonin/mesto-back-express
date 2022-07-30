@@ -4,6 +4,7 @@ const {
   getAllUsers,
   getUserById,
   updateUserProfile,
+  updateUserAvatar,
   deleteUser,
 } = require('../controllers/users');
 
@@ -13,7 +14,8 @@ userRouter.get('/', (req, res) => {
 userRouter.post('/users', createUser);
 userRouter.get('/users', getAllUsers);
 userRouter.get('/users/:userId', getUserById);
-userRouter.patch('/users/:userId', updateUserProfile);
+userRouter.patch('/users/me', updateUserProfile);
+userRouter.patch('/users/me/avatar', updateUserAvatar);
 userRouter.delete('/users/:userId', deleteUser);
 
 module.exports = userRouter;
