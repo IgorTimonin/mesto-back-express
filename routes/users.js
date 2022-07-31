@@ -9,7 +9,7 @@ const {
 } = require('../controllers/users');
 
 userRouter.get('/', (req, res) => {
-  res.send('Сервер работает')
+  res.send('Сервер работает');
 });
 userRouter.post('/users', createUser);
 userRouter.get('/users', getAllUsers);

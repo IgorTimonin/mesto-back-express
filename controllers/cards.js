@@ -5,17 +5,15 @@ module.exports.createCard = (req, res) => {
   const owner = req.user._id;
   Card.create({ name, link, owner })
     .then((card) => res.send(card))
-    // .then((err) => {
-    //   const ERROR_CODE = 400;
-    //   if (err.name === 'ValidationError') return res
-    //     .status(ERROR_CODE)
-    //     .send('переданы некорректные данные для создания карточки');
-    // })
-    .catch((err) =>
-      res.status(500).send({
+    .catch((err) => {
+      if (err.name === 'ValidationError')
+        return res
+          .status(400)
+          .send('переданы некорректные данные для создания карточки');
+      return res.status(500).send({
         message: `Произошла ошибка создания карточки.`,
-      })
-    );
+      });
+    });
 };
 
 module.exports.getCard = (req, res) => {
@@ -31,11 +29,13 @@ module.exports.getCard = (req, res) => {
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => res.send(`Карточка удалена.`))
-    .catch((err) =>
-      res.status(500).send({
-        message: `Ошибка при удалении карточки ${err.name} ${err.message}`,
-      })
-    );
+    .catch((err) => {
+      if (err.name === 'CastError')
+        return res.status(404).send('Запрашиваемая карточка не найдена.');
+      return res.status(500).send({
+        message: `Ошибка при удалении карточки`,
+      });
+    });
 };
 
 module.exports.likeCard = (req, res) =>
@@ -47,7 +47,7 @@ module.exports.likeCard = (req, res) =>
     .then((card) => res.status(200).send(`Лайк поставлен.`))
     .catch((err) =>
       res.status(500).send({
-        message: `Ошибка при лайке карточки ${err.name} ${err.message}`,
+        message: `Ошибка при установке лайка ${err.name} ${err.message}`,
       })
     );
 
@@ -60,6 +60,6 @@ module.exports.dislikeCard = (req, res) =>
     .then((card) => res.status(200).send(`Лайк снят.`))
     .catch((err) =>
       res.status(500).send({
-        message: `Ошибка при дизлайке карточки ${err.name} ${err.message}`,
+        message: `Ошибка при снятии лайка ${err.name} ${err.message}`,
       })
     );
