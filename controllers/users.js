@@ -10,11 +10,9 @@ module.exports.createUser = (req, res) => {
     )
     .catch((err) => {
       if (err.name === 'ValidationError')
-        return res
-          .status(400)
-          .send({
-            message: 'переданы некорректные данные для создания пользователя',
-          });
+        return res.status(400).send({
+          message: 'переданы некорректные данные для создания пользователя',
+        });
       return res.status(500).send({
         message: `Произошла ошибка создания пользователя.`,
       });
@@ -32,17 +30,33 @@ module.exports.getAllUsers = (req, res) => {
 };
 
 module.exports.getUserById = (req, res) => {
-  User.findById(req.params.userId)
-    .then((user) => res.send(user))
-    .catch((err) => {
-      if (err.name === 'CastError')
-        return res
-          .status(404)
-          .send({ message: 'Запрашиваемый пользователь не найден.' });
-      return res.status(500).send({
-        message: `Произошла неизвестная ошибка при поиске пользователя`,
-      });
-    });
+  User.findById(req.params.userId, (err, user) => {
+    if (err && err.name === 'CastError') {
+      return res
+        .status(400)
+        .send({ message: 'Передан неверный id пользователя' });
+    }
+    if (!user) {
+      return res
+        .status(404)
+        .send({ message: 'Запрашиваемый пользователь не найден.' });
+    }
+    res.send(user);
+  });
+  // .then((user) => {
+
+  //   res.send(user);
+  // }
+  // )
+  // .catch((err) => {
+  //   // if (err.name === 'CastError')
+  //   //   return res
+  //   //     .status(400)
+  //   //     .send({ message: 'Запрашиваемый пользователь не существует.' });
+  //   return res.status(500).send({
+  //     message: `Произошла неизвестная ошибка при поиске пользователя ${err.name} ${err.message}`,
+  //   });
+  // });
 };
 
 module.exports.updateUserProfile = (req, res) => {
@@ -62,18 +76,16 @@ module.exports.updateUserProfile = (req, res) => {
           return res
             .status(400)
             .send(
-              'переданы некорректные данные для обновления данных пользователя'
+              { message: 'переданы некорректные данные для обновления данных пользователя'}
             );
         return res.status(500).send({
           message: `Произошла ошибка обновления данных пользователя.`,
         });
       });
   } else {
-    return res
-      .status(400)
-      .send({
-        message: `переданы некорректные данные для обновления данных пользователя`,
-      });
+    return res.status(400).send({
+      message: `переданы некорректные данные для обновления данных пользователя`,
+    });
   }
 };
 
@@ -93,26 +105,24 @@ module.exports.updateUserAvatar = (req, res) => {
         if (err.name === 'ValidationError')
           return res
             .status(400)
-            .send(
-              'переданы некорректные данные для обновления аватара пользователя'
+            .send({ message:
+              'переданы некорректные данные для обновления аватара пользователя'}
             );
         return res.status(500).send({
           message: `Произошла ошибка обновления аватара пользователя.`,
         });
       });
   } else {
-    return res
-      .status(400)
-      .send({
-        message:
-          'переданы некорректные данные для обновления данных пользователя',
-      });
+    return res.status(400).send({
+      message:
+        'переданы некорректные данные для обновления данных пользователя',
+    });
   }
 };
 
 module.exports.deleteUser = (req, res) => {
   User.findByIdAndRemove(req.params.userId)
-    .then((user) => res.send(`Пользователь c id: ${req.params.userId} удалён.`))
+    .then((user) => res.send({ message: `Пользователь c id: ${req.params.userId} удалён.`}))
     .catch((err) => {
       if (err.name === 'CastError')
         return res
