@@ -12,7 +12,9 @@ module.exports.createUser = (req, res) => {
       if (err.name === 'ValidationError')
         return res
           .status(400)
-          .send('переданы некорректные данные для создания пользователя');
+          .send({
+            message: 'переданы некорректные данные для создания пользователя',
+          });
       return res.status(500).send({
         message: `Произошла ошибка создания пользователя.`,
       });
@@ -34,7 +36,9 @@ module.exports.getUserById = (req, res) => {
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'CastError')
-        return res.status(404).send('Запрашиваемый пользователь не найден.');
+        return res
+          .status(404)
+          .send({ message: 'Запрашиваемый пользователь не найден.' });
       return res.status(500).send({
         message: `Произошла неизвестная ошибка при поиске пользователя`,
       });
@@ -67,7 +71,9 @@ module.exports.updateUserProfile = (req, res) => {
   } else {
     return res
       .status(400)
-      .send('переданы некорректные данные для обновления данных пользователя');
+      .send({
+        message: `переданы некорректные данные для обновления данных пользователя`,
+      });
   }
 };
 
@@ -97,7 +103,10 @@ module.exports.updateUserAvatar = (req, res) => {
   } else {
     return res
       .status(400)
-      .send('переданы некорректные данные для обновления данных пользователя');
+      .send({
+        message:
+          'переданы некорректные данные для обновления данных пользователя',
+      });
   }
 };
 
@@ -106,7 +115,9 @@ module.exports.deleteUser = (req, res) => {
     .then((user) => res.send(`Пользователь c id: ${req.params.userId} удалён.`))
     .catch((err) => {
       if (err.name === 'CastError')
-        return res.status(404).send('Запрашиваемый пользователь не найден.');
+        return res
+          .status(404)
+          .send({ message: 'Запрашиваемый пользователь не найден.' });
       return res.status(500).send({
         message: `Ошибка при удалении пользователя`,
       });

@@ -9,7 +9,7 @@ module.exports.createCard = (req, res) => {
       if (err.name === 'ValidationError')
         return res
           .status(400)
-          .send('переданы некорректные данные для создания карточки');
+          .send({message: 'переданы некорректные данные для создания карточки'})
       return res.status(500).send({
         message: `Произошла ошибка создания карточки.`,
       });
@@ -28,12 +28,12 @@ module.exports.getCard = (req, res) => {
 
 module.exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
-    .then((card) => res.send(`Карточка удалена.`))
+    .then((card) => res.send(card))
     .catch((err) => {
       if (err.name === 'CastError')
-        return res.status(404).send('Запрашиваемая карточка не найдена.');
+        return res.status(404).send({message:  `Запрашиваемая карточка не найдена.`});
       return res.status(500).send({
-        message: `Ошибка при удалении карточки`,
+        message: `Ошибка при удалении карточки ${err.name} ${err.message}`,
       });
     });
 };
