@@ -43,20 +43,6 @@ module.exports.getUserById = (req, res) => {
     }
     res.send(user);
   });
-  // .then((user) => {
-
-  //   res.send(user);
-  // }
-  // )
-  // .catch((err) => {
-  //   // if (err.name === 'CastError')
-  //   //   return res
-  //   //     .status(400)
-  //   //     .send({ message: 'Запрашиваемый пользователь не существует.' });
-  //   return res.status(500).send({
-  //     message: `Произошла неизвестная ошибка при поиске пользователя ${err.name} ${err.message}`,
-  //   });
-  // });
 };
 
 module.exports.updateUserProfile = (req, res) => {
