@@ -48,6 +48,9 @@ module.exports.getUserById = (req, res) => {
           .status(err400)
           .send({ message: 'Передан неверный id пользователя' });
       }
+      return res.status(err500).send({
+        message: 'Произошла ошибка при получении данных пользователя.',
+      });
     });
 };
 
@@ -118,12 +121,15 @@ module.exports.updateUserAvatar = (req, res) => {
         'Переданы некорректные данные для обновления аватара пользователя',
     });
   }
+  return res.status(err500).send({
+    message: 'Произошла ошибка при обновлении аватара пользователя.',
+  });
 };
 
 module.exports.deleteUser = (req, res) => {
   User.findByIdAndRemove(req.params.userId)
     .orFail()
-    .then((user) =>
+    .then(() =>
       res.send({ message: `Пользователь c id: ${req.params.userId} удалён.` })
     )
     .catch((err) => {
