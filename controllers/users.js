@@ -1,4 +1,5 @@
 const User = require('../models/user');
+const { err400, err404, err500 } = require('../utils/constants');
 
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
@@ -6,16 +7,15 @@ module.exports.createUser = (req, res) => {
     .then((user) =>
       res.send({
         user,
-      })
-    )
+      }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({
+        return res.status(err400).send({
           message: 'переданы некорректные данные для создания пользователя',
         });
       }
-      return res.status(500).send({
-        message: `Произошла ошибка создания пользователя.`,
+      return res.status(err500).send({
+        message: 'Произошла ошибка создания пользователя.',
       });
     });
 };
@@ -24,27 +24,10 @@ module.exports.getAllUsers = (req, res) => {
   User.find({})
     .then((user) => res.send({ users: user }))
     .catch((err) =>
-      res.status(500).send({
-        message: `Произошла ошибка при получении списка пользователей.`,
-      })
-    );
+      res.status(err500).send({
+        message: 'Произошла ошибка при получении списка пользователей.',
+      }));
 };
-
-// module.exports.getUserById = (req, res) => {
-//   User.findById(req.params.userId, (err, user) => {
-//     if (err && err.name === 'CastError') {
-//       return res
-//         .status(400)
-//         .send({ message: 'Передан неверный id пользователя' });
-//     }
-//     if (!user) {
-//       return res
-//         .status(404)
-//         .send({ message: 'Запрашиваемый пользователь не найден.' });
-//     }
-//     res.send(user);
-//   });
-// };
 
 module.exports.getUserById = (req, res) => {
   User.findById(req.params.userId)
@@ -55,12 +38,12 @@ module.exports.getUserById = (req, res) => {
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
         return res
-          .status(404)
+          .status(err404)
           .send({ message: 'Запрашиваемый пользователь не найден.' });
       }
       if (err.name === 'CastError') {
         return res
-          .status(400)
+          .status(err400)
           .send({ message: 'Передан неверный id пользователя' });
       }
     });
@@ -81,17 +64,17 @@ module.exports.updateUserProfile = (req, res) => {
       .then((user) => res.send(user))
       .catch((err) => {
         if (err.name === 'ValidationError') {
-          return res.status(400).send({
+          return res.status(err400).send({
             message:
               'переданы некорректные данные для обновления данных пользователя',
           });
         }
         if (err.name === 'DocumentNotFoundError') {
           return res
-            .status(404)
+            .status(err404)
             .send({ message: 'Запрашиваемый пользователь не найден.' });
         }
-        return res.status(500).send({
+        return res.status(err500).send({
           message: 'Произошла ошибка обновления данных пользователя.',
         });
       });
@@ -108,20 +91,22 @@ module.exports.updateUserAvatar = (req, res) => {
         new: true,
         runValidators: true,
       },
-    ).orFail()
+    )
+      .orFail()
       .then((user) => res.send(user))
       .catch((err) => {
-        if (err.name === 'ValidationError')
-          return res.status(400).send({
+        if (err.name === 'ValidationError') {
+          return res.status(err400).send({
             message:
               'переданы некорректные данные для обновления аватара пользователя',
           });
-        return res.status(500).send({
-          message: `Произошла ошибка обновления аватара пользователя.`,
+        }
+        return res.status(err500).send({
+          message: 'Произошла ошибка обновления аватара пользователя.',
         });
       });
   } else {
-    return res.status(400).send({
+    return res.status(err400).send({
       message:
         'переданы некорректные данные для обновления данных пользователя',
     });
@@ -131,15 +116,15 @@ module.exports.updateUserAvatar = (req, res) => {
 module.exports.deleteUser = (req, res) => {
   User.findByIdAndRemove(req.params.userId)
     .then((user) =>
-      res.send({ message: `Пользователь c id: ${req.params.userId} удалён.` })
-    )
+      res.send({ message: `Пользователь c id: ${req.params.userId} удалён.` }))
     .catch((err) => {
-      if (err.name === 'CastError')
+      if (err.name === 'CastError') {
         return res
-          .status(404)
+          .status(err404)
           .send({ message: 'Запрашиваемый пользователь не найден.' });
-      return res.status(500).send({
-        message: `Ошибка при удалении пользователя`,
+      }
+      return res.status(err500).send({
+        message: 'Ошибка при удалении пользователя',
       });
     });
 };
