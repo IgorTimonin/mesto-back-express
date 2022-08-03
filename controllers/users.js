@@ -115,15 +115,7 @@ module.exports.updateUserAvatar = (req, res) => {
           message: 'Произошла ошибка при обновлении аватара пользователя.',
         });
       });
-  } else {
-    return res.status(err400).send({
-      message:
-        'Переданы некорректные данные для обновления аватара пользователя',
-    });
   }
-  return res.status(err500).send({
-    message: 'Произошла ошибка при обновлении аватара пользователя.',
-  });
 };
 
 module.exports.deleteUser = (req, res) => {
