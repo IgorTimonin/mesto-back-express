@@ -24,7 +24,7 @@ module.exports.createUser = (req, res) => {
 module.exports.getAllUsers = (req, res) => {
   User.find({})
     .then((user) => res.send({ users: user }))
-    .catch((err) =>
+    .catch(() =>
       res.status(err500).send({
         message: 'Произошла ошибка при получении списка пользователей.',
       })
@@ -122,6 +122,7 @@ module.exports.updateUserAvatar = (req, res) => {
 
 module.exports.deleteUser = (req, res) => {
   User.findByIdAndRemove(req.params.userId)
+    .orFail()
     .then((user) =>
       res.send({ message: `Пользователь c id: ${req.params.userId} удалён.` })
     )
@@ -130,6 +131,11 @@ module.exports.deleteUser = (req, res) => {
         return res
           .status(err404)
           .send({ message: 'Запрашиваемый пользователь не найден.' });
+      }
+      if (err.name === 'DocumentNotFoundError') {
+        return res.status(err404).send({
+          message: `Пользователь с id: ${req.user._id} не найден.`,
+        });
       }
       return res.status(err500).send({
         message: 'Ошибка при удалении пользователя',
