@@ -1,13 +1,27 @@
-{
+// {
 
-  "extends": "airbnb-base",
+//   "extends": "airbnb-base",
+//   "rules": {
+//     "no-underscore-dangle": [
+//       "error",
+//       {"allow": [
+//         "_id"
+//       ]}
+//     ]
+//   }
+
+// }
+{
+  "extends": ["airbnb-base", "prettier"],
   "rules": {
     "no-underscore-dangle": [
       "error",
-      {"allow": [
-        "_id"
-      ]}
-    ]
-  }
-
+      {
+        "allow": ["_id"]
+      }
+    ],
+    "jsx-quotes": [1, "prefer-double"],
+    "prettier/prettier": "error"
+  },
+  "plugins": ["prettier"]
 }

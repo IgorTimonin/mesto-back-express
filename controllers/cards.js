@@ -21,10 +21,11 @@ module.exports.createCard = (req, res) => {
 module.exports.getCard = (req, res) => {
   Card.find({})
     .then((card) => res.send(card))
-    .catch((err) =>
+    .catch(() =>
       res
         .status(err500)
-        .send({ message: 'Произошла ошибка при получении карточек.' }));
+        .send({ message: 'Произошла ошибка при получении карточек.' })
+    );
 };
 
 module.exports.deleteCard = (req, res) =>
@@ -59,7 +60,7 @@ module.exports.likeCard = (req, res) =>
           .send({ message: 'Запрашиваемая карточка не найдена.' });
       }
       res.send(card);
-    },
+    }
   );
 
 module.exports.dislikeCard = (req, res) =>
@@ -79,5 +80,5 @@ module.exports.dislikeCard = (req, res) =>
           .send({ message: 'Запрашиваемая карточка не найдена.' });
       }
       res.send(card);
-    },
+    }
   );

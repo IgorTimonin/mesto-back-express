@@ -7,11 +7,12 @@ module.exports.createUser = (req, res) => {
     .then((user) =>
       res.send({
         user,
-      }))
+      })
+    )
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(err400).send({
-          message: 'переданы некорректные данные для создания пользователя',
+          message: 'Переданы некорректные данные для создания пользователя',
         });
       }
       return res.status(err500).send({
@@ -26,7 +27,8 @@ module.exports.getAllUsers = (req, res) => {
     .catch((err) =>
       res.status(err500).send({
         message: 'Произошла ошибка при получении списка пользователей.',
-      }));
+      })
+    );
 };
 
 module.exports.getUserById = (req, res) => {
@@ -39,7 +41,7 @@ module.exports.getUserById = (req, res) => {
       if (err.name === 'DocumentNotFoundError') {
         return res
           .status(err404)
-          .send({ message: 'Запрашиваемый пользователь не найден.' });
+          .send({ message: `Пользователь с id: ${req.user._id} не найден.` });
       }
       if (err.name === 'CastError') {
         return res
@@ -58,7 +60,7 @@ module.exports.updateUserProfile = (req, res) => {
       {
         new: true,
         runValidators: true,
-      },
+      }
     )
       .orFail()
       .then((user) => res.send(user))
@@ -66,16 +68,16 @@ module.exports.updateUserProfile = (req, res) => {
         if (err.name === 'ValidationError') {
           return res.status(err400).send({
             message:
-              'переданы некорректные данные для обновления данных пользователя',
+              'Переданы некорректные данные для обновления информации о пользователе',
           });
         }
         if (err.name === 'DocumentNotFoundError') {
           return res
             .status(err404)
-            .send({ message: 'Запрашиваемый пользователь не найден.' });
+            .send({ message: `Пользователь с id: ${req.user._id} не найден.` });
         }
         return res.status(err500).send({
-          message: 'Произошла ошибка обновления данных пользователя.',
+          message: 'Произошла ошибка при обновлении данных пользователя.',
         });
       });
   }
@@ -90,7 +92,7 @@ module.exports.updateUserAvatar = (req, res) => {
       {
         new: true,
         runValidators: true,
-      },
+      }
     )
       .orFail()
       .then((user) => res.send(user))
@@ -98,17 +100,22 @@ module.exports.updateUserAvatar = (req, res) => {
         if (err.name === 'ValidationError') {
           return res.status(err400).send({
             message:
-              'переданы некорректные данные для обновления аватара пользователя',
+              'Переданы некорректные данные для обновления аватара пользователя',
+          });
+        }
+        if (err.name === 'DocumentNotFoundError') {
+          return res.status(err404).send({
+            message: `Пользователь с id: ${req.user._id} не найден.`,
           });
         }
         return res.status(err500).send({
-          message: 'Произошла ошибка обновления аватара пользователя.',
+          message: 'Произошла ошибка при обновлении аватара пользователя.',
         });
       });
   } else {
     return res.status(err400).send({
       message:
-        'переданы некорректные данные для обновления данных пользователя',
+        'Переданы некорректные данные для обновления аватара пользователя',
     });
   }
 };
@@ -116,7 +123,8 @@ module.exports.updateUserAvatar = (req, res) => {
 module.exports.deleteUser = (req, res) => {
   User.findByIdAndRemove(req.params.userId)
     .then((user) =>
-      res.send({ message: `Пользователь c id: ${req.params.userId} удалён.` }))
+      res.send({ message: `Пользователь c id: ${req.params.userId} удалён.` })
+    )
     .catch((err) => {
       if (err.name === 'CastError') {
         return res
