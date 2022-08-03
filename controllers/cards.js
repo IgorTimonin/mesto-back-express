@@ -9,7 +9,9 @@ module.exports.createCard = (req, res) => {
       if (err.name === 'ValidationError')
         return res
           .status(400)
-          .send({message: 'переданы некорректные данные для создания карточки'})
+          .send({
+            message: 'переданы некорректные данные для создания карточки',
+          });
       return res.status(500).send({
         message: `Произошла ошибка создания карточки.`,
       });
@@ -26,12 +28,10 @@ module.exports.getCard = (req, res) => {
     );
 };
 
-module.exports.deleteCard = (req, res) => 
+module.exports.deleteCard = (req, res) =>
   Card.findByIdAndRemove(req.params.cardId, (err, card) => {
     if (err && err.name === 'CastError') {
-      return res
-        .status(400)
-        .send({ message: 'Передан неверный id карточки' });
+      return res.status(400).send({ message: 'Передан неверный id карточки' });
     }
     if (!card) {
       return res
@@ -55,34 +55,38 @@ module.exports.likeCard = (req, res) =>
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
-    { new: true }, (err, card) => {
-    if (err && err.name === 'CastError') {
-      return res
-        .status(400)
-        .send({ message: 'Передан неверный id карточки' });
+    { new: true },
+    (err, card) => {
+      if (err && err.name === 'CastError') {
+        return res
+          .status(400)
+          .send({ message: 'Передан неверный id карточки' });
+      }
+      if (!card) {
+        return res
+          .status(404)
+          .send({ message: 'Запрашиваемая карточка не найдена.' });
+      }
+      res.send(card);
     }
-    if (!card) {
-      return res
-        .status(404)
-        .send({ message: 'Запрашиваемая карточка не найдена.' });
-    }
-    res.send(card);
-  });
+  );
 
 module.exports.dislikeCard = (req, res) =>
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
-    { new: true }, (err, card) => {
-    if (err && err.name === 'CastError') {
-      return res
-        .status(400)
-        .send({ message: 'Передан неверный id карточки' });
+    { new: true },
+    (err, card) => {
+      if (err && err.name === 'CastError') {
+        return res
+          .status(400)
+          .send({ message: 'Передан неверный id карточки' });
+      }
+      if (!card) {
+        return res
+          .status(404)
+          .send({ message: 'Запрашиваемая карточка не найдена.' });
+      }
+      res.send(card);
     }
-    if (!card) {
-      return res
-        .status(404)
-        .send({ message: 'Запрашиваемая карточка не найдена.' });
-    }
-    res.send(card);
-  });
+  );

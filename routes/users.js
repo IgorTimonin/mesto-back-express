@@ -8,11 +8,11 @@ const {
   deleteUser,
 } = require('../controllers/users');
 
-userRouter.post('/users', createUser);
-userRouter.get('/users', getAllUsers);
-userRouter.get('/users/:userId', getUserById);
-userRouter.patch('/users/me', updateUserProfile);
-userRouter.patch('/users/me/avatar', updateUserAvatar);
-userRouter.delete('/users/:userId', deleteUser);
+userRouter.post('/', createUser);
+userRouter.get('/', getAllUsers);
+userRouter.get('/:userId', getUserById);
+userRouter.patch('/me', updateUserProfile);
+userRouter.patch('/me/avatar', updateUserAvatar);
+userRouter.delete('/:userId', deleteUser);
 
 module.exports = userRouter;

@@ -5,8 +5,14 @@ const cardSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
-      minlength: 2,
-      maxlength: 30,
+      minlength: [
+        2,
+        'Название должно быть длиннее 2-х символов, сейчас оно {VALUE} символов',
+      ],
+      maxlength: [
+        30,
+        'Название должно быть короче 30 символов, сейчас оно {VALUE} символов',
+      ],
     },
     link: {
       type: String,
@@ -21,6 +27,7 @@ const cardSchema = new mongoose.Schema(
       {
         type: mongoose.Schema.Types.ObjectId,
         default: [],
+        ref: 'user',
       },
     ],
     createdAt: { type: Date, default: Date.now },
