@@ -1,4 +1,9 @@
 const Card = require('../models/card');
+const {
+  incorrectDataFor,
+  noFoundData,
+  UnknownError,
+} = require('../utils/errorMessages');
 
 module.exports.createCard = (req, res) => {
   const { name, link } = req.body;
@@ -6,12 +11,14 @@ module.exports.createCard = (req, res) => {
   Card.create({ name, link, owner })
     .then((card) => res.send(card))
     .catch((err) => {
-      if (err.name === 'ValidationError')
-        return res
-          .status(400)
-          .send({
-            message: 'переданы некорректные данные для создания карточки',
-          });
+      if (err.name === 'ValidationError') {
+        incorrectDataFor(res, 'создании', 'карточки');
+      }
+      // return res
+      //   .status(400)
+      //   .send({
+      //     message: 'переданы некорректные данные для создания карточки',
+      //   });
       return res.status(500).send({
         message: `Произошла ошибка создания карточки.`,
       });
@@ -21,10 +28,11 @@ module.exports.createCard = (req, res) => {
 module.exports.getCard = (req, res) => {
   Card.find({})
     .then((card) => res.send(card))
-    .catch((err) =>
-      res.status(500).send({
-        message: `Произошла ошибка при получении карточек.`,
-      })
+    .catch(
+      (err) => UnknownError(res, 'получении', 'карточек')
+      // res.status(500).send({
+      //   message: `Произошла ошибка при получении карточек.`,
+      // })
     );
 };
 
@@ -58,15 +66,21 @@ module.exports.likeCard = (req, res) =>
     { new: true },
     (err, card) => {
       if (err && err.name === 'CastError') {
-        return res
-          .status(400)
-          .send({ message: 'Передан неверный id карточки' });
+        incorrectDataFor(res, 'постановки', 'лайка');
       }
+      // {
+      //   return res
+      //     .status(400)
+      //     .send({ message: 'Передан неверный id карточки' });
+      // }
       if (!card) {
-        return res
-          .status(404)
-          .send({ message: 'Запрашиваемая карточка не найдена.' });
+        noFoundData(res, req.params.cardId, 'карточка');
       }
+      // {
+      //   return res
+      //     .status(404)
+      //     .send({ message: 'Запрашиваемая карточка не найдена.' });
+      // }
       res.send(card);
     }
   );
