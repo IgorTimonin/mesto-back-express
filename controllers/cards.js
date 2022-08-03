@@ -28,57 +28,77 @@ module.exports.getCard = (req, res) => {
     );
 };
 
-module.exports.deleteCard = (req, res) =>
-  Card.findByIdAndRemove(req.params.cardId, (err, card) => {
-    if (err && err.name === 'CastError') {
+module.exports.deleteCard = (req, res) => {
+  Card.findByIdAndRemove(req.params.cardId)
+    .orFail()
+    .then((card) => {
+      res.send(card);
+    })
+    .catch((err) => {
+      if (err && err.name === 'CastError') {
+        return res
+          .status(err400)
+          .send({ message: 'Передан неверный id карточки' });
+      }
+      if (err.name === 'DocumentNotFoundError') {
+        return res
+          .status(err404)
+          .send({ message: 'Запрашиваемая карточка не найдена.' });
+      }
       return res
-        .status(err400)
-        .send({ message: 'Передан неверный id карточки' });
-    }
-    if (!card) {
-      return res
-        .status(err404)
-        .send({ message: 'Запрашиваемая карточка не найдена.' });
-    }
-    res.send(card);
-  });
+        .status(err500)
+        .send({ message: 'Произошла ошибка при удалении карточки.' });
+    });
+};
 
 module.exports.likeCard = (req, res) =>
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
-    { new: true },
-    (err, card) => {
+    { new: true }
+  )
+    .orFail()
+    .then((card) => {
+      res.send(card);
+    })
+    .catch((err) => {
       if (err && err.name === 'CastError') {
         return res
           .status(err400)
           .send({ message: 'Передан неверный id карточки' });
       }
-      if (!card) {
+      if (err.name === 'DocumentNotFoundError') {
         return res
           .status(err404)
           .send({ message: 'Запрашиваемая карточка не найдена.' });
       }
-      res.send(card);
-    }
-  );
+      return res
+        .status(err500)
+        .send({ message: 'Произошла ошибка при постановке лайка.' });
+    });
 
 module.exports.dislikeCard = (req, res) =>
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
-    { new: true },
-    (err, card) => {
+    { new: true }
+  )
+    .orFail()
+    .then((card) => {
+      res.send(card);
+    })
+    .catch((err) => {
       if (err && err.name === 'CastError') {
         return res
           .status(err400)
           .send({ message: 'Передан неверный id карточки' });
       }
-      if (!card) {
+      if (err.name === 'DocumentNotFoundError') {
         return res
           .status(err404)
           .send({ message: 'Запрашиваемая карточка не найдена.' });
       }
-      res.send(card);
-    }
-  );
+      return res
+        .status(err500)
+        .send({ message: 'Произошла ошибка при снятии лайка.' });
+    });
