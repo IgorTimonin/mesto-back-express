@@ -4,11 +4,9 @@ const { err400, err404, err500 } = require('../utils/constants');
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
-    .then((user) =>
-      res.send({
-        user,
-      })
-    )
+    .then((user) => res.send({
+      user,
+    }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(err400).send({
@@ -24,11 +22,9 @@ module.exports.createUser = (req, res) => {
 module.exports.getAllUsers = (req, res) => {
   User.find({})
     .then((user) => res.send({ users: user }))
-    .catch(() =>
-      res.status(err500).send({
-        message: 'Произошла ошибка при получении списка пользователей.',
-      })
-    );
+    .catch(() => res.status(err500).send({
+      message: 'Произошла ошибка при получении списка пользователей.',
+    }));
 };
 
 module.exports.getUserById = (req, res) => {
@@ -63,7 +59,7 @@ module.exports.updateUserProfile = (req, res) => {
       {
         new: true,
         runValidators: true,
-      }
+      },
     )
       .orFail()
       .then((user) => res.send(user))
@@ -95,7 +91,7 @@ module.exports.updateUserAvatar = (req, res) => {
       {
         new: true,
         runValidators: true,
-      }
+      },
     )
       .orFail()
       .then((user) => res.send(user))
@@ -121,9 +117,7 @@ module.exports.updateUserAvatar = (req, res) => {
 module.exports.deleteUser = (req, res) => {
   User.findByIdAndRemove(req.params.userId)
     .orFail()
-    .then(() =>
-      res.send({ message: `Пользователь c id: ${req.params.userId} удалён.` })
-    )
+    .then(() => res.send({ message: `Пользователь c id: ${req.params.userId} удалён.` }))
     .catch((err) => {
       if (err.name === 'CastError') {
         return res
