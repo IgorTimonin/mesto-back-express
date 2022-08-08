@@ -4,7 +4,7 @@ const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
+      default: 'Жак-Ив Кусто',
       minlength: [
         2,
         'Имя должно быть длиннее 2-х символов, сейчас оно {VALUE} символов',
@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema(
     },
     about: {
       type: String,
-      required: true,
+      default: 'Исследователь',
       minlength: [
         2,
         'Описание должно быть длиннее 2-х символов, сейчас оно {VALUE} символов',
@@ -28,11 +28,25 @@ const userSchema = new mongoose.Schema(
     },
     avatar: {
       type: String,
+      default:
+        'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
+    },
+    email: {
+      type: String,
       required: true,
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: true,
+      minlength: [
+        8,
+        'Пароль должен быть длиннее 8-ми символов, сейчас его длина {VALUE} символов',
+      ],
     },
   },
   {
     versionKey: false,
-  },
+  }
 );
 module.exports = mongoose.model('user', userSchema);
