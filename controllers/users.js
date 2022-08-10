@@ -1,34 +1,55 @@
 const validator = require('validator');
 const User = require('../models/user');
-const { err400, err404, err500 } = require('../utils/constants');
+const { err400, err404, err409, err500 } = require('../utils/constants');
 
 module.exports.createUser = (req, res) => {
   const { name, about, avatar, email, password } = req.body;
-  if (validator.isEmail(`${email}`)) {
-    User.create({
-      name,
-      about,
-      avatar,
-      email,
-      password,
-    })
-      .orFail()
-      .then((user) =>
-        res.send({
-          user,
-        })
-      )
-      .catch((err) => {
-        if (err.name === 'ValidationError') {
-          return res.status(err400).send({
-            message: 'Переданы некорректные данные для создания пользователя',
-          });
-        }
-        return res.status(err500).send({
-          message: 'Произошла ошибка создания пользователя.',
-        });
+  if (!email && !password) {
+    return res.status(err400).send({
+      message: 'Переданы некорректные данные для создания пользователя',
+    });
+  }
+  if (!validator.isEmail(email)) {
+    return res.status(err400).send({
+      message: 'Неверный формат электронной почты',
+    });
+  }
+  User.findOne({ email }).then((user) => {
+    if (user) {
+      return res.status(err409).send({
+        message: 'Пользователь с такой почтой уже существует',
       });
-  };
+    }
+  });
+  User.create({
+    name,
+    about,
+    avatar,
+    email,
+    password,
+  })
+    .then(({ email, _id }) => res.send({ email, _id }))
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(err400).send({
+          message: 'Переданы некорректные данные для создания пользователя',
+        });
+      }
+      return res.status(err500).send({
+        message: `Произошла ошибка создания пользователя. ${err}`,
+      });
+    });
+
+  // if (err) {
+  // (err.name === 'ReferenceError') {
+  //     return res.status(err400).send({
+  //       message: 'Переданы некорректные данные для создания пользователя',
+  //     });
+  //   }
+  //   return res.status(err500).send({
+  //     message: 'Произошла ошибка создания пользователя.',
+  //   });
+  // }
 };
 
 module.exports.getAllUsers = (req, res) => {
@@ -49,9 +70,9 @@ module.exports.getUserById = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
-        return res
-          .status(err404)
-          .send({ message: `Пользователь с id: ${req.user._id} не найден.` });
+        return res.status(err404).send({
+          message: `Пользователь с id: ${req.params.userId} не найден.`,
+        });
       }
       if (err.name === 'CastError') {
         return res
