@@ -1,4 +1,6 @@
 const validator = require('validator');
+const bcrypt = require('bcrypt');
+const { SALT_ROUND } = require('../configs');
 const User = require('../models/user');
 const { err400, err404, err409, err500 } = require('../utils/constants');
 
@@ -14,21 +16,24 @@ module.exports.createUser = (req, res) => {
       message: 'Неверный формат электронной почты',
     });
   }
-  User.findOne({ email }).then((user) => {
-    if (user) {
-      return res.status(err409).send({
-        message: 'Пользователь с такой почтой уже существует',
-      });
-    }
-  });
-  User.create({
-    name,
-    about,
-    avatar,
-    email,
-    password,
-  })
-    .then(({ email, _id }) => res.send({ email, _id }))
+  User.findOne({ email })
+    .then((user) => {
+      if (user) {
+        return res.status(err409).send({
+          message: 'Пользователь с такой почтой уже существует',
+        });
+      }
+      return bcrypt.hash(password, SALT_ROUND);
+    })
+    .then((hash) => {
+      User.create({
+        name,
+        about,
+        avatar,
+        email,
+        password: hash,
+      }).then(({ _id }) => res.send({ email, _id }));
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(err400).send({
@@ -39,7 +44,6 @@ module.exports.createUser = (req, res) => {
         message: `Произошла ошибка создания пользователя. ${err}`,
       });
     });
-
   // if (err) {
   // (err.name === 'ReferenceError') {
   //     return res.status(err400).send({
@@ -171,3 +175,29 @@ module.exports.deleteUser = (req, res) => {
       });
     });
 };
+
+// module.exports.login = (req, res) => {
+//   const { email, password } = req.body;
+//   User.findOne({email})
+//     .orFail()
+//     .then(() => {}
+
+//     )
+//     .catch((err) => {
+//       if (err.name === 'CastError') {
+//         return res
+//           .status(err404)
+//           .send({
+//             message: `Пользователь c почтой: ${req.params.email} не найден.`,
+//           });
+//       }
+//       if (err.name === 'DocumentNotFoundError') {
+//         return res.status(err404).send({
+//           message: `Пользователь с id: ${req.user._id} не найден.`,
+//         });
+//       }
+//       return res.status(err500).send({
+//         message: 'Ошибка при удалении пользователя',
+//       });
+//     });
+// };

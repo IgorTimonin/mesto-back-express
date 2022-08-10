@@ -1,3 +1,4 @@
+// require('dotenv').config();
 const express = require('express');
 
 const { PORT = 3000 } = process.env;
@@ -27,3 +28,4 @@ app.use('/*', (req, res) => {
 });
 
 app.listen(PORT);
+// console.log(process.env.NODE_ENV);
