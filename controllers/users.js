@@ -1,5 +1,10 @@
 const validator = require('validator');
+require('dotenv').config();
+
 const bcrypt = require('bcrypt');
+
+const { NODE_ENV, JWT_SECRET } = process.env;
+const jwt = require('jsonwebtoken');
 const { SALT_ROUND } = require('../configs');
 const User = require('../models/user');
 const { err400, err404, err409, err500 } = require('../utils/constants');
@@ -178,26 +183,49 @@ module.exports.deleteUser = (req, res) => {
 
 // module.exports.login = (req, res) => {
 //   const { email, password } = req.body;
-//   User.findOne({email})
+//   User.findOne({ email })
 //     .orFail()
-//     .then(() => {}
+//     .then(() => {
 
-//     )
+//     })
 //     .catch((err) => {
 //       if (err.name === 'CastError') {
-//         return res
-//           .status(err404)
-//           .send({
-//             message: `Пользователь c почтой: ${req.params.email} не найден.`,
-//           });
+//         return res.status(err404).send({
+//           message: 'Неверный логин или пароль',
+//         });
 //       }
 //       if (err.name === 'DocumentNotFoundError') {
 //         return res.status(err404).send({
-//           message: `Пользователь с id: ${req.user._id} не найден.`,
+//           message: 'Неверный логин или пароль',
 //         });
 //       }
 //       return res.status(err500).send({
-//         message: 'Ошибка при удалении пользователя',
+//         message: 'Ошибка авторизации пользователя',
 //       });
 //     });
 // };
+
+module.exports.login = (req, res) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      if (!user) {
+        return Promise.reject(new Error('Неправильные почта или пароль'));
+      }
+      const token = jwt.sign(
+        { _id: user._id },
+        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
+        { expiresIn: '7d' },
+      );
+      res
+        .cookie('jwt', token, {
+          maxAge: 3600000 * 7,
+          httpOnly: true,
+        })
+        .end();
+    })
+    .catch((err) => {
+      res.status(401).send({ message: err.message });
+    });
+};
