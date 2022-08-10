@@ -7,7 +7,9 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 const jwt = require('jsonwebtoken');
 const { SALT_ROUND } = require('../configs');
 const User = require('../models/user');
-const { err400, err404, err409, err500 } = require('../utils/constants');
+const {
+  err400, err404, err409, err500,
+} = require('../utils/constants');
 
 module.exports.createUser = (req, res) => {
   const { name, about, avatar, email, password } = req.body;
@@ -49,16 +51,6 @@ module.exports.createUser = (req, res) => {
         message: `Произошла ошибка создания пользователя. ${err}`,
       });
     });
-  // if (err) {
-  // (err.name === 'ReferenceError') {
-  //     return res.status(err400).send({
-  //       message: 'Переданы некорректные данные для создания пользователя',
-  //     });
-  //   }
-  //   return res.status(err500).send({
-  //     message: 'Произошла ошибка создания пользователя.',
-  //   });
-  // }
 };
 
 module.exports.getAllUsers = (req, res) => {
@@ -180,30 +172,6 @@ module.exports.deleteUser = (req, res) => {
       });
     });
 };
-
-// module.exports.login = (req, res) => {
-//   const { email, password } = req.body;
-//   User.findOne({ email })
-//     .orFail()
-//     .then(() => {
-
-//     })
-//     .catch((err) => {
-//       if (err.name === 'CastError') {
-//         return res.status(err404).send({
-//           message: 'Неверный логин или пароль',
-//         });
-//       }
-//       if (err.name === 'DocumentNotFoundError') {
-//         return res.status(err404).send({
-//           message: 'Неверный логин или пароль',
-//         });
-//       }
-//       return res.status(err500).send({
-//         message: 'Ошибка авторизации пользователя',
-//       });
-//     });
-// };
 
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
