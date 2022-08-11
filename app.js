@@ -19,11 +19,14 @@ app.use(express.json());
 app.post('/signin', login);
 app.post('/signup', createUser);
 
-app.use(auth);
+// app.use(auth);
 
 app.use('/users', userRouter);
 app.use('/cards', cardRouter);
 app.use('/*', (req, res) => {
   res.status(err404).send({ message: 'Упс! Такой страницы не существует' });
+});
+app.use((err, req, res, next) => {
+  res.status(err.statusCode).send({ message: err.message });
 });
 app.listen(PORT);

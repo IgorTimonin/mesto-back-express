@@ -10,6 +10,7 @@ const {
 userRouter.get('/', getAllUsers);
 userRouter.get('/:userId', getUserById);
 userRouter.patch('/me', updateUserProfile);
+userRouter.get('/me', getUserById);
 userRouter.patch('/me/avatar', updateUserAvatar);
 userRouter.delete('/:userId', deleteUser);
 
