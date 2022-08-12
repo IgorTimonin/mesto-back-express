@@ -1,5 +1,10 @@
 const Card = require('../models/card');
 const { err400, err404, err500 } = require('../utils/constants');
+const NotFoundError = require('../errors/NotFoundError');
+const BadRequestError = require('../errors/BadRequestError');
+const ForbiddenError = require('../errors/ForbiddenError');
+const InternalServerError = require('../errors/InternalServerError');
+const UnauthorizedError = require('../errors/UnauthorizedError');
 
 module.exports.createCard = (req, res) => {
   const { name, link } = req.body;

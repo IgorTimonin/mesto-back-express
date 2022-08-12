@@ -8,11 +8,11 @@ const userSchema = new mongoose.Schema(
       default: 'Жак-Ив Кусто',
       minlength: [
         2,
-        'Имя должно быть длиннее 2-х символов, сейчас оно {VALUE} символов',
+        'Имя должно быть длиннее 2-х символов, сейчас его длина {VALUE} символ(ов)',
       ],
       maxlength: [
         30,
-        'Имя должно быть короче 30 символов, сейчас оно {VALUE} символов',
+        'Имя должно быть короче 30 символов, сейчас его длина {VALUE} символ(ов)',
       ],
     },
     about: {
@@ -20,11 +20,11 @@ const userSchema = new mongoose.Schema(
       default: 'Исследователь',
       minlength: [
         2,
-        'Описание должно быть длиннее 2-х символов, сейчас оно {VALUE} символов',
+        'Описание должно быть длиннее 2-х символов, сейчас его длина {VALUE} символ(ов)',
       ],
       maxlength: [
         30,
-        'Описание должно быть короче 30 символов, сейчас оно {VALUE} символов',
+        'Описание должно быть короче 30 символов, сейчас его длина {VALUE} символ(ов)',
       ],
     },
     avatar: {
@@ -40,16 +40,16 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
-      select: false,
       minlength: [
         8,
-        'Пароль должен быть длиннее 8-ми символов, сейчас его длина {VALUE} символов',
+        'Пароль должен быть длиннее 8-ми символов, его длина {VALUE} символ(ов)',
       ],
+      select: false,
     },
   },
   {
     versionKey: false,
-  },
+  }
 );
 
 userSchema.statics.findUserByCredentials = function (email, password) {
@@ -64,7 +64,6 @@ userSchema.statics.findUserByCredentials = function (email, password) {
         if (!matched) {
           return Promise.reject(new Error('Неправильные почта или пароль'));
         }
-
         return user;
       });
     });

@@ -7,28 +7,29 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 const jwt = require('jsonwebtoken');
 const { SALT_ROUND } = require('../configs');
 const User = require('../models/user');
-const {
-  err400, err404, err409, err500,
-} = require('../utils/constants');
+const { err400, err404, err409, err500 } = require('../utils/constants');
+const NotFoundError = require('../errors/NotFoundError');
+const BadRequestError = require('../errors/BadRequestError');
+const ForbiddenError = require('../errors/ForbiddenError');
+const InternalServerError = require('../errors/InternalServerError');
+const UnauthorizedError = require('../errors/UnauthorizedError');
+const ConflictError = require('../errors/ConflictError');
+const { errorCatcher } = require('../middlewares/errorCatcher');
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const { name, about, avatar, email, password } = req.body;
-  if (!email && !password) {
-    return res.status(err400).send({
-      message: 'Переданы некорректные данные для создания пользователя',
-    });
+  if (!email || !password) {
+    throw new BadRequestError(
+      'Переданы некорректные данные для создания пользователя'
+    );
   }
   if (!validator.isEmail(email)) {
-    return res.status(err400).send({
-      message: 'Неверный формат электронной почты',
-    });
+    throw new BadRequestError('Неверный формат электронной почты');
   }
   User.findOne({ email })
     .then((user) => {
       if (user) {
-        return res.status(err409).send({
-          message: 'Пользователь с такой почтой уже существует',
-        });
+        throw new ConflictError('Пользователь с такой почтой уже существует');
       }
       return bcrypt.hash(password, SALT_ROUND);
     })
@@ -39,18 +40,11 @@ module.exports.createUser = (req, res) => {
         avatar,
         email,
         password: hash,
-      }).then(({ _id }) => res.send({ email, _id }));
+      })
+        .then(({ _id }) => res.send({ email, _id }))
+        .catch(next);
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(err400).send({
-          message: 'Переданы некорректные данные для создания пользователя',
-        });
-      }
-      return res.status(err500).send({
-        message: `Произошла ошибка создания пользователя. ${err}`,
-      });
-    });
+    .catch(next);
 };
 
 module.exports.getAllUsers = (req, res) => {
@@ -184,7 +178,7 @@ module.exports.login = (req, res) => {
       const token = jwt.sign(
         { _id: user._id },
         NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
-        { expiresIn: '7d' },
+        { expiresIn: '7d' }
       );
       res
         .cookie('jwt', token, {
