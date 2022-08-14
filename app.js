@@ -28,7 +28,19 @@ app.post(
   }),
   login,
 );
-app.post('/signup', createUser);
+app.post(
+  '/signup',
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string().required().email(),
+      password: Joi.string().required().min(8),
+      name: Joi.string().min(2).max(30),
+      avatar: Joi.string().pattern(/https?:\/\/(?:[-\w]+\.)?([-\w]+)\.\w+(?:\.\w+)?\/?.*/i),
+      about: Joi.string().min(2).max(30),
+    }),
+  }),
+  createUser,
+);
 
 // app.use(auth);
 
