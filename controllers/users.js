@@ -1,6 +1,4 @@
 const validator = require('validator');
-require('dotenv').config();
-
 const bcrypt = require('bcrypt');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
@@ -29,7 +27,7 @@ module.exports.createUser = (req, res, next) => {
   User.findOne({ email })
     .then((user) => {
       if (user) {
-        throw new ConflictError('Пользователь с такой почтой уже существует');
+        throw new ConflictError('Пользователь уже существует');
       }
       return bcrypt.hash(password, SALT_ROUND);
     })
@@ -41,7 +39,7 @@ module.exports.createUser = (req, res, next) => {
         email,
         password: hash,
       })
-        .then(({ _id }) => res.send({ email, _id }))
+        .then(({ _id }) => res.send({ name, about, avatar, email, _id }))
         .catch(next);
     })
     .catch(next);
@@ -175,6 +173,7 @@ module.exports.login = (req, res) => {
       if (!user) {
         return Promise.reject(new Error('Неправильные почта или пароль'));
       }
+      console.log(process.env.NODE_ENV);
       const token = jwt.sign(
         { _id: user._id },
         NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
@@ -185,7 +184,8 @@ module.exports.login = (req, res) => {
           maxAge: 3600000 * 7,
           httpOnly: true,
         })
-        .end();
+        .status(200)
+        .send({ message: 'Успешный вход' });
     })
     .catch((err) => {
       res.status(401).send({ message: err.message });

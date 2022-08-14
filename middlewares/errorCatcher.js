@@ -19,8 +19,10 @@ module.exports.errorCatcher = (err, res) => {
     });
   }
   if (err.name === 'DocumentNotFoundError') {
-    // throw new NotFoundError();
-    return err;
+    return res.status(err404).send({
+      message: 'Запрашиваемая информация не найдена',
+    });
   }
+
   console.log('Этой ошибки нет в списке');
 };

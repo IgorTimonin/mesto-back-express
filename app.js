@@ -1,3 +1,7 @@
+require('dotenv').config();
+
+console.log(process.env);
+
 const express = require('express');
 const mongoose = require('mongoose');
 const { celebrate, Joi, errors } = require('celebrate');
@@ -26,7 +30,7 @@ app.post(
       password: Joi.string().required().min(8),
     }),
   }),
-  login,
+  login
 );
 app.post(
   '/signup',
@@ -35,11 +39,13 @@ app.post(
       email: Joi.string().required().email(),
       password: Joi.string().required().min(8),
       name: Joi.string().min(2).max(30),
-      avatar: Joi.string().pattern(/https?:\/\/(?:[-\w]+\.)?([-\w]+)\.\w+(?:\.\w+)?\/?.*/i),
+      avatar: Joi.string().pattern(
+        /https?:\/\/(?:[-\w]+\.)?([-\w]+)\.\w+(?:\.\w+)?\/?.*/i
+      ),
       about: Joi.string().min(2).max(30),
     }),
   }),
-  createUser,
+  createUser
 );
 
 // app.use(auth);
@@ -52,13 +58,11 @@ app.use('/*', (req, res) => {
 app.use(errors());
 
 app.use((err, req, res, next) => {
-  // errorCatcher(err, res);
+  errorCatcher(err, res);
   console.log('Ответ получен');
   const { statusCode = 500, message } = err;
-  res
-    .status(statusCode)
-    .send({
-      message: statusCode === 500 ? 'На сервере произошла ошибка' : message,
-    });
+  res.status(statusCode).send({
+    message: statusCode === 500 ? 'На сервере произошла ошибка' : message,
+  });
 });
 app.listen(PORT);
