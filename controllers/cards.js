@@ -50,28 +50,6 @@ module.exports.deleteCard = (req, res, next) => {
         .send({ message: `Карточка c id: ${req.params.cardId} удалёна.` });
     })
     .catch(next);
-
-  //   Card.findByIdAndRemove(req.params.cardId)
-  //     .orFail()
-  //     .then((card) => {
-  //       res.send(card);
-  //     })
-  //     .catch((err) => {
-  //       if (err && err.name === 'CastError') {
-  //         return res
-  //           .status(err400)
-  //           .send({ message: 'Передан неверный id карточки' });
-  //       }
-  //       if (err.name === 'DocumentNotFoundError') {
-  //         return res
-  //           .status(err404)
-  //           .send({ message: 'Запрашиваемая карточка не найдена.' });
-  //       }
-  //       return res
-  //         .status(err500)
-  //         .send({ message: 'Произошла ошибка при удалении карточки.' });
-  //     });
-  // };
 };
 
 module.exports.likeCard = (req, res) =>

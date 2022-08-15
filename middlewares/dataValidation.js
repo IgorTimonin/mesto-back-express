@@ -1,5 +1,7 @@
 const { Joi } = require('celebrate');
 
+const linkRegExPattern = /https?:\/\/(?:[-\w]+\.)?([-\w]+)\.\w+(?:\.\w+)?\/?.*/i;
+
 module.exports.loginUserValidator = {
   body: Joi.object().keys({
     email: Joi.string().required().email(),
@@ -12,24 +14,34 @@ module.exports.createUserValidator = {
     email: Joi.string().required().email(),
     password: Joi.string().required().min(8),
     name: Joi.string().min(2).max(30),
-    avatar: Joi.string().pattern(
-      /https?:\/\/(?:[-\w]+\.)?([-\w]+)\.\w+(?:\.\w+)?\/?.*/i,
-    ),
+    avatar: Joi.string().pattern(linkRegExPattern),
     about: Joi.string().min(2).max(30),
+  }),
+};
+
+module.exports.updateUserValidator = {
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+  }),
+};
+
+module.exports.updateUserAvatarValidator = {
+  body: Joi.object().keys({
+    avatar: Joi.string().required().pattern(linkRegExPattern),
   }),
 };
 
 module.exports.createCardValidator = {
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
-    link: Joi.string().pattern(
-      /https?:\/\/(?:[-\w]+\.)?([-\w]+)\.\w+(?:\.\w+)?\/?.*/i,
-    ),
+    link: Joi.string().pattern(linkRegExPattern),
   }),
 };
 
 module.exports.idValidator = {
-  body: Joi.string()
-    .required()
-    .pattern(/^[a-f\d]{24}$/i),
+  params: Joi.object().keys({
+    cardId: Joi.string().required().min(24).max(24).pattern(/^[a-f\d]{24}$/i),
+  }),
+  // .pattern(/^[a-f\d]{24}$/i),
 };

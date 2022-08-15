@@ -1,7 +1,9 @@
 const userRouter = require('express').Router();
-const { celebrate, Joi, errors } = require('celebrate');
+const { celebrate, errors } = require('celebrate');
 const {
   idValidator,
+  updateUserValidator,
+  updateUserAvatarValidator,
 } = require('../middlewares/dataValidation');
 const {
   getAllUsers,
@@ -15,8 +17,12 @@ const {
 userRouter.get('/', getAllUsers);
 userRouter.get('/me', celebrate(idValidator), getMe);
 userRouter.get('/:userId', celebrate(idValidator), getUserById);
-userRouter.patch('/me', celebrate(idValidator), updateUserProfile);
-userRouter.patch('/me/avatar', updateUserAvatar);
+userRouter.patch('/me', celebrate(updateUserValidator), updateUserProfile);
+userRouter.patch(
+  '/me/avatar',
+  celebrate(updateUserAvatarValidator),
+  updateUserAvatar,
+);
 userRouter.delete('/:userId', celebrate(idValidator), deleteUser);
-
+errors();
 module.exports = userRouter;

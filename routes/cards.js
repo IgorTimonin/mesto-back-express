@@ -1,5 +1,5 @@
 const cardRouter = require('express').Router();
-const { celebrate, Joi, errors } = require('celebrate');
+const { celebrate, errors } = require('celebrate');
 const {
   idValidator,
   createCardValidator,
@@ -17,5 +17,5 @@ cardRouter.get('/', getCard);
 cardRouter.delete('/:cardId', celebrate(idValidator), deleteCard);
 cardRouter.put('/:cardId/likes', celebrate(idValidator), likeCard);
 cardRouter.delete('/:cardId/likes', celebrate(idValidator), dislikeCard);
-
+errors();
 module.exports = cardRouter;
