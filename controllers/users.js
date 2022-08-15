@@ -1,7 +1,8 @@
+require('dotenv').config();
+
+
 const validator = require('validator');
 const bcrypt = require('bcrypt');
-
-const { NODE_ENV, JWT_SECRET } = process.env;
 const jwt = require('jsonwebtoken');
 const { SALT_ROUND } = require('../configs');
 const User = require('../models/user');
@@ -13,6 +14,7 @@ const InternalServerError = require('../errors/InternalServerError');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 const ConflictError = require('../errors/ConflictError');
 const { errorCatcher } = require('../middlewares/errorCatcher');
+const { NODE_ENV, JWT_SECRET } = process.env;
 
 module.exports.createUser = (req, res, next) => {
   const { name, about, avatar, email, password } = req.body;
@@ -173,11 +175,11 @@ module.exports.login = (req, res) => {
       if (!user) {
         return Promise.reject(new Error('Неправильные почта или пароль'));
       }
-      console.log('Создаю токен')
+      console.log('Создаю токен');
       const token = jwt.sign(
         { _id: user._id },
         NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
-        { expiresIn: '7d' }
+        { expiresIn: '7d' },
       );
       res
         .cookie('jwt', token, {
