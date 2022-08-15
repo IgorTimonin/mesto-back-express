@@ -12,6 +12,10 @@ const app = express();
 const cardRouter = require('./routes/cards');
 const userRouter = require('./routes/users');
 const { err404 } = require('./utils/constants');
+const {
+  loginUserValidator,
+  createUserValidator,
+} = require('./middlewares/dataValidation');
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
@@ -21,29 +25,10 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 
 app.use(express.json());
 app.use(cookieParser());
-app.post(
-  '/signin',
-  celebrate({
-    body: Joi.object().keys({
-      email: Joi.string().required().email(),
-      password: Joi.string().required().min(8),
-    }),
-  }),
-  login,
-);
+app.post('/signin', celebrate(loginUserValidator), login);
 app.post(
   '/signup',
-  celebrate({
-    body: Joi.object().keys({
-      email: Joi.string().required().email(),
-      password: Joi.string().required().min(8),
-      name: Joi.string().min(2).max(30),
-      avatar: Joi.string().pattern(
-        /https?:\/\/(?:[-\w]+\.)?([-\w]+)\.\w+(?:\.\w+)?\/?.*/i
-      ),
-      about: Joi.string().min(2).max(30),
-    }),
-  }),
+  celebrate(createUserValidator),
   createUser,
 );
 
