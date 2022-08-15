@@ -1,5 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const cookieParser = require('cookie-parser');
+
 const { celebrate, Joi, errors } = require('celebrate');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
@@ -9,7 +11,6 @@ const { PORT = 3000 } = process.env;
 const app = express();
 const cardRouter = require('./routes/cards');
 const userRouter = require('./routes/users');
-// const meRouter = require('./routes/me');
 const { err404 } = require('./utils/constants');
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
@@ -19,6 +20,7 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 });
 
 app.use(express.json());
+app.use(cookieParser());
 app.post(
   '/signin',
   celebrate({
@@ -45,10 +47,7 @@ app.post(
   createUser,
 );
 
-// app.use(auth);
-
 app.use('/users', auth, userRouter);
-// app.use('/me', auth, meRouter);
 app.use('/cards', auth, cardRouter);
 app.use('/*', (req, res) => {
   res.status(err404).send({ message: 'Упс! Такой страницы не существует' });
@@ -57,7 +56,6 @@ app.use(errors());
 
 app.use((err, req, res, next) => {
   errorCatcher(err, res);
-  console.log('Ответ получен');
   const { statusCode = 500, message } = err;
   res.status(statusCode).send({
     message: statusCode === 500 ? 'На сервере произошла ошибка' : message,

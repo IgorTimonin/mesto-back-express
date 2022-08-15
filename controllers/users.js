@@ -1,6 +1,4 @@
 require('dotenv').config();
-
-
 const validator = require('validator');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -207,6 +205,7 @@ module.exports.login = (req, res) => {
         .cookie('jwt', token, {
           maxAge: 3600000 * 7,
           httpOnly: true,
+          sameSite: true,
         })
         .status(200)
         .send({ message: 'Успешный вход' });
