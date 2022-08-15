@@ -34,14 +34,21 @@ module.exports.updateUserAvatarValidator = {
 
 module.exports.createCardValidator = {
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    link: Joi.string().pattern(linkRegExPattern),
+    name: Joi.string().required().min(2).max(30),
+    link: Joi.string().required().pattern(linkRegExPattern),
   }),
 };
 
 module.exports.idValidator = {
   params: Joi.object().keys({
-    cardId: Joi.string().required().min(24).max(24).pattern(/^[a-f\d]{24}$/i),
+    userId: Joi.string()
+      .min(24)
+      .max(24)
+      .pattern(/^[a-f\d]{24}$/i),
+    cardId: Joi.string()
+      .min(24)
+      .max(24)
+      .pattern(/^[a-f\d]{24}$/i),
   }),
   // .pattern(/^[a-f\d]{24}$/i),
 };
