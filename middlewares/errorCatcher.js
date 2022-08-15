@@ -4,7 +4,9 @@ const ForbiddenError = require('../errors/ForbiddenError');
 const InternalServerError = require('../errors/InternalServerError');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 const ConflictError = require('../errors/ConflictError');
-const { err400, err404, err409, err500 } = require('../utils/constants');
+const {
+  err400, err404, err409, err500,
+} = require('../utils/constants');
 
 module.exports.errorCatcher = (err, res) => {
   console.log(err);

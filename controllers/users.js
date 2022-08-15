@@ -4,7 +4,9 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { SALT_ROUND } = require('../configs');
 const User = require('../models/user');
-const { err400, err404, err409, err500 } = require('../utils/constants');
+const {
+  err400, err404, err409, err500,
+} = require('../utils/constants');
 const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
 const ForbiddenError = require('../errors/ForbiddenError');
@@ -12,13 +14,16 @@ const InternalServerError = require('../errors/InternalServerError');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 const ConflictError = require('../errors/ConflictError');
 const { errorCatcher } = require('../middlewares/errorCatcher');
+
 const { NODE_ENV, JWT_SECRET } = process.env;
 
 module.exports.createUser = (req, res, next) => {
-  const { name, about, avatar, email, password } = req.body;
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
   if (!email || !password) {
     throw new BadRequestError(
-      'Переданы некорректные данные для создания пользователя'
+      'Переданы некорректные данные для создания пользователя',
     );
   }
   if (!validator.isEmail(email)) {
@@ -39,7 +44,9 @@ module.exports.createUser = (req, res, next) => {
         email,
         password: hash,
       })
-        .then(({ _id }) => res.send({ name, about, avatar, email, _id }))
+        .then(({ _id }) => res.send({
+          name, about, avatar, email, _id,
+        }))
         .catch(next);
     })
     .catch(next);
@@ -48,11 +55,9 @@ module.exports.createUser = (req, res, next) => {
 module.exports.getAllUsers = (req, res) => {
   User.find({})
     .then((user) => res.send({ users: user }))
-    .catch(() =>
-      res.status(err500).send({
-        message: 'Произошла ошибка при получении списка пользователей.',
-      })
-    );
+    .catch(() => res.status(err500).send({
+      message: 'Произошла ошибка при получении списка пользователей.',
+    }));
 };
 
 module.exports.getUserById = (req, res) => {
@@ -110,7 +115,7 @@ module.exports.updateUserProfile = (req, res) => {
       {
         new: true,
         runValidators: true,
-      }
+      },
     )
       .orFail()
       .then((user) => res.send(user))
@@ -142,7 +147,7 @@ module.exports.updateUserAvatar = (req, res) => {
       {
         new: true,
         runValidators: true,
-      }
+      },
     )
       .orFail()
       .then((user) => res.send(user))
@@ -168,9 +173,7 @@ module.exports.updateUserAvatar = (req, res) => {
 module.exports.deleteUser = (req, res) => {
   User.findByIdAndRemove(req.params.userId)
     .orFail()
-    .then(() =>
-      res.send({ message: `Пользователь c id: ${req.params.userId} удалён.` })
-    )
+    .then(() => res.send({ message: `Пользователь c id: ${req.params.userId} удалён.` }))
     .catch((err) => {
       if (err.name === 'CastError') {
         return res

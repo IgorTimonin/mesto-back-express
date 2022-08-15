@@ -50,5 +50,4 @@ module.exports.idValidator = {
       .max(24)
       .pattern(/^[a-f\d]{24}$/i),
   }),
-  // .pattern(/^[a-f\d]{24}$/i),
 };

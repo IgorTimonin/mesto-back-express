@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 
-const { celebrate, Joi, errors } = require('celebrate');
+const { celebrate, errors } = require('celebrate');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const { errorCatcher } = require('./middlewares/errorCatcher');
@@ -45,5 +45,6 @@ app.use((err, req, res, next) => {
   res.status(statusCode).send({
     message: statusCode === 500 ? 'На сервере произошла ошибка' : message,
   });
+  next();
 });
 app.listen(PORT);
