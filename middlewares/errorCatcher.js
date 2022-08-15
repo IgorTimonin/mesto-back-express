@@ -7,7 +7,7 @@ const ConflictError = require('../errors/ConflictError');
 const { err400, err404, err409, err500 } = require('../utils/constants');
 
 module.exports.errorCatcher = (err, res) => {
-  console.log(err.name);
+  console.log(err);
   if (err.name === 'TypeError') {
     throw new BadRequestError(
       'Переданы некорректные данные для создания пользователя',

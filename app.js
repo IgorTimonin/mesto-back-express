@@ -9,6 +9,7 @@ const { PORT = 3000 } = process.env;
 const app = express();
 const cardRouter = require('./routes/cards');
 const userRouter = require('./routes/users');
+// const meRouter = require('./routes/me');
 const { err404 } = require('./utils/constants');
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
@@ -47,6 +48,7 @@ app.post(
 // app.use(auth);
 
 app.use('/users', auth, userRouter);
+// app.use('/me', auth, meRouter);
 app.use('/cards', auth, cardRouter);
 app.use('/*', (req, res) => {
   res.status(err404).send({ message: 'Упс! Такой страницы не существует' });

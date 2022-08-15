@@ -80,6 +80,29 @@ module.exports.getUserById = (req, res) => {
     });
 };
 
+module.exports.getMe = (req, res) => {
+  User.findById(req.user._id)
+    .orFail()
+    .then((user) => {
+      res.send(user);
+    })
+    .catch((err) => {
+      if (err.name === 'DocumentNotFoundError') {
+        return res.status(err404).send({
+          message: `Пользователь с id: ${req.user._id} не найден.`,
+        });
+      }
+      if (err.name === 'CastError') {
+        return res
+          .status(err400)
+          .send({ message: 'Передан неверный id пользователя' });
+      }
+      return res.status(err500).send({
+        message: 'Произошла ошибка при получении данных пользователя.',
+      });
+    });
+};
+
 module.exports.updateUserProfile = (req, res) => {
   const { name, about } = req.body;
   if (name || about) {
@@ -175,7 +198,6 @@ module.exports.login = (req, res) => {
       if (!user) {
         return Promise.reject(new Error('Неправильные почта или пароль'));
       }
-      console.log('Создаю токен');
       const token = jwt.sign(
         { _id: user._id },
         NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',

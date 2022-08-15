@@ -34,21 +34,19 @@ module.exports.getCard = (req, res) => {
 };
 
 module.exports.deleteCard = (req, res, next) => {
-  const cardId = req.params;
-
-  Card.findById(cardId)
+  Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
         throw new NotFoundError('Запрашиваемая карточка не найдена.');
       }
-      if (card.owner !== req.user._id) {
-        throw new ForbiddenError('Вы можете удалять только свои карточки');
+      if (card.owner.toString() !== req.user._id) {
+        throw new ForbiddenError('Вы не можете удалять чужие карточки');
       }
       return card.remove();
     })
     .then(() => {
       res
-        .status()
+        .status(200)
         .send({ message: `Карточка c id: ${req.params.cardId} удалёна.` });
     })
     .catch(next);
