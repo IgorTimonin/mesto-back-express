@@ -108,27 +108,7 @@ module.exports.updateUserProfile = (req, res, next) => {
       .orFail()
       .then((user) => res.send(user))
       .catch(next);
-
-    // .catch((err) => {
-    //   if (err.name === 'ValidationError') {
-    //     return res.status(err400).send({
-    //       message:
-    //         'Переданы некорректные данные для обновления информации о пользователе',
-    //     });
-    //   }
-    //   if (err.name === 'DocumentNotFoundError') {
-    //     return res
-    //       .status(err404)
-    //       .send({ message: `Пользователь с id: ${req.user._id} не найден.` });
-    //   }
-    //   return res.status(err500).send({
-    //     message: 'Произошла ошибка при обновлении данных пользователя.',
-    //   });
-    // });
   }
-  // throw new BadRequestError(
-  //   'Переданы некорректные данные для обновления информации о пользователе',
-  // );
 };
 
 module.exports.updateUserAvatar = (req, res, next) => {
@@ -145,22 +125,6 @@ module.exports.updateUserAvatar = (req, res, next) => {
       .orFail()
       .then((user) => res.send(user))
       .catch(next);
-    // .catch((err) => {
-    //   if (err.name === 'ValidationError') {
-    //     return res.status(err400).send({
-    //       message:
-    //         'Переданы некорректные данные для обновления аватара пользователя',
-    //     });
-    //   }
-    //   if (err.name === 'DocumentNotFoundError') {
-    //     return res.status(err404).send({
-    //       message: `Пользователь с id: ${req.user._id} не найден.`,
-    //     });
-    //   }
-    //   return res.status(err500).send({
-    //     message: 'Произошла ошибка при обновлении аватара пользователя.',
-    //   });
-    // });
   }
 };
 
@@ -178,26 +142,6 @@ module.exports.deleteUser = (req, res, next) => {
         .send({ message: `Пользователь c id: ${req.params.userId} удалён.` });
     })
     .catch(next);
-  // User.findByIdAndRemove(req.params.userId)
-  //   .orFail()
-  //   .then(() =>
-  //     res.send({ message: `Пользователь c id: ${req.params.userId} удалён.` })
-  //   ).catch(next)
-  // .catch((err) => {
-  //   if (err.name === 'CastError') {
-  //     return res
-  //       .status(err404)
-  //       .send({ message: 'Запрашиваемый пользователь не найден.' });
-  //   }
-  //   if (err.name === 'DocumentNotFoundError') {
-  //     return res.status(err404).send({
-  //       message: `Пользователь с id: ${req.user._id} не найден.`,
-  //     });
-  //   }
-  //   return res.status(err500).send({
-  //     message: 'Ошибка при удалении пользователя',
-  //   });
-  // });
 };
 
 module.exports.login = (req, res) => {

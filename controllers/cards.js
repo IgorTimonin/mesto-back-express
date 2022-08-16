@@ -14,25 +14,12 @@ module.exports.createCard = (req, res, next) => {
   Card.create({ name, link, owner })
     .then((card) => res.send(card))
     .catch(next);
-  // .catch((err) => {
-  //   if (err.name === 'ValidationError') {
-  //     return res.status(err400).send({
-  //       message: 'переданы некорректные данные для создания карточки',
-  //     });
-  //   }
-  //   return res.status(err500).send({
-  //     message: 'Произошла ошибка создания карточки.',
-  //   });
-  // });
 };
 
 module.exports.getCard = (req, res, next) => {
   Card.find({})
     .then((card) => res.send(card))
     .catch(next);
-  // .catch(() => res
-  //   .status(err500)
-  //   .send({ message: 'Произошла ошибка при получении карточек.' }));
 };
 
 module.exports.deleteCard = (req, res, next) => {
@@ -64,21 +51,6 @@ module.exports.likeCard = (req, res, next) => Card.findByIdAndUpdate(
     res.send(card);
   })
   .catch(next);
-// .catch((err) => {
-//   if (err && err.name === 'CastError') {
-//     return res
-//       .status(err400)
-//       .send({ message: 'Передан неверный id карточки' });
-//   }
-//   if (err.name === 'DocumentNotFoundError') {
-//     return res
-//       .status(err404)
-//       .send({ message: 'Запрашиваемая карточка не найдена.' });
-//   }
-//   return res
-//     .status(err500)
-//     .send({ message: 'Произошла ошибка при постановке лайка.' });
-// });
 
 module.exports.dislikeCard = (req, res, next) => Card.findByIdAndUpdate(
   req.params.cardId,
@@ -90,18 +62,3 @@ module.exports.dislikeCard = (req, res, next) => Card.findByIdAndUpdate(
     res.send(card);
   })
   .catch(next);
-// .catch((err) => {
-//   if (err && err.name === 'CastError') {
-//     return res
-//       .status(err400)
-//       .send({ message: 'Передан неверный id карточки' });
-//   }
-//   if (err.name === 'DocumentNotFoundError') {
-//     return res
-//       .status(err404)
-//       .send({ message: 'Запрашиваемая карточка не найдена.' });
-//   }
-//   return res
-//     .status(err500)
-//     .send({ message: 'Произошла ошибка при снятии лайка.' });
-// });
