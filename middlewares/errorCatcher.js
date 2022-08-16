@@ -1,19 +1,14 @@
-const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
-const ForbiddenError = require('../errors/ForbiddenError');
-const InternalServerError = require('../errors/InternalServerError');
-const UnauthorizedError = require('../errors/UnauthorizedError');
 const ConflictError = require('../errors/ConflictError');
-const {
-  err400, err404, err409, err500,
-} = require('../utils/constants');
+const InternalServerError = require('../errors/InternalServerError');
+const { err400, err404 } = require('../utils/constants');
 
 module.exports.errorCatcher = (err, res) => {
-  console.log(err);
   if (err.name === 'TypeError') {
-    throw new BadRequestError(
-      'Переданы некорректные данные для создания пользователя',
-    );
+    throw new BadRequestError('Переданы некорректные данные');
+  }
+  if (err.name === 'CastError') {
+    return res.status(err400).send({ message: 'Передан неверный id карточки' });
   }
   if (err.name === 'ValidationError') {
     return res.status(err400).send({
@@ -25,6 +20,8 @@ module.exports.errorCatcher = (err, res) => {
       message: 'Запрашиваемая информация не найдена',
     });
   }
-
-  console.log('Этой ошибки нет в списке');
+  if (err.code === 11000) {
+    throw new ConflictError('Переданые данные уже есть в базе');
+  }
+  return new InternalServerError('На сервере произошла неизвестная ошибка');
 };

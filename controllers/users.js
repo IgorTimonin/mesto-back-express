@@ -4,16 +4,10 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { SALT_ROUND } = require('../configs');
 const User = require('../models/user');
-const {
-  err400, err404, err409, err500,
-} = require('../utils/constants');
 const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
-const ForbiddenError = require('../errors/ForbiddenError');
-const InternalServerError = require('../errors/InternalServerError');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 const ConflictError = require('../errors/ConflictError');
-const { errorCatcher } = require('../middlewares/errorCatcher');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
@@ -45,22 +39,24 @@ module.exports.createUser = (req, res, next) => {
         password: hash,
       })
         .then(({ _id }) => res.send({
-          name, about, avatar, email, _id,
+          name,
+          about,
+          avatar,
+          email,
+          _id,
         }))
         .catch(next);
     })
     .catch(next);
 };
 
-module.exports.getAllUsers = (req, res) => {
+module.exports.getAllUsers = (req, res, next) => {
   User.find({})
     .then((user) => res.send({ users: user }))
-    .catch(() => res.status(err500).send({
-      message: 'Произошла ошибка при получении списка пользователей.',
-    }));
+    .catch(next);
 };
 
-module.exports.getUserById = (req, res) => {
+module.exports.getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .orFail()
     .then((user) => {
@@ -68,22 +64,18 @@ module.exports.getUserById = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
-        return res.status(err404).send({
-          message: `Пользователь с id: ${req.params.userId} не найден.`,
-        });
+        throw new NotFoundError(
+          `Пользователь с id: ${req.params.userId} не найден.`,
+        );
       }
       if (err.name === 'CastError') {
-        return res
-          .status(err400)
-          .send({ message: 'Передан неверный id пользователя' });
+        throw new BadRequestError('Передан неверный id пользователя');
       }
-      return res.status(err500).send({
-        message: 'Произошла ошибка при получении данных пользователя.',
-      });
-    });
+    })
+    .catch(next);
 };
 
-module.exports.getMe = (req, res) => {
+module.exports.getMe = (req, res, next) => {
   User.findById(req.user._id)
     .orFail()
     .then((user) => {
@@ -91,22 +83,18 @@ module.exports.getMe = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
-        return res.status(err404).send({
-          message: `Пользователь с id: ${req.user._id} не найден.`,
-        });
+        throw new NotFoundError(
+          `Пользователь с id: ${req.user._id} не найден.`,
+        );
       }
       if (err.name === 'CastError') {
-        return res
-          .status(err400)
-          .send({ message: 'Передан неверный id пользователя' });
+        throw new BadRequestError('Передан неверный id пользователя');
       }
-      return res.status(err500).send({
-        message: 'Произошла ошибка при получении данных пользователя.',
-      });
-    });
+    })
+    .catch(next);
 };
 
-module.exports.updateUserProfile = (req, res) => {
+module.exports.updateUserProfile = (req, res, next) => {
   const { name, about } = req.body;
   if (name || about) {
     User.findByIdAndUpdate(
@@ -119,26 +107,31 @@ module.exports.updateUserProfile = (req, res) => {
     )
       .orFail()
       .then((user) => res.send(user))
-      .catch((err) => {
-        if (err.name === 'ValidationError') {
-          return res.status(err400).send({
-            message:
-              'Переданы некорректные данные для обновления информации о пользователе',
-          });
-        }
-        if (err.name === 'DocumentNotFoundError') {
-          return res
-            .status(err404)
-            .send({ message: `Пользователь с id: ${req.user._id} не найден.` });
-        }
-        return res.status(err500).send({
-          message: 'Произошла ошибка при обновлении данных пользователя.',
-        });
-      });
+      .catch(next);
+
+    // .catch((err) => {
+    //   if (err.name === 'ValidationError') {
+    //     return res.status(err400).send({
+    //       message:
+    //         'Переданы некорректные данные для обновления информации о пользователе',
+    //     });
+    //   }
+    //   if (err.name === 'DocumentNotFoundError') {
+    //     return res
+    //       .status(err404)
+    //       .send({ message: `Пользователь с id: ${req.user._id} не найден.` });
+    //   }
+    //   return res.status(err500).send({
+    //     message: 'Произошла ошибка при обновлении данных пользователя.',
+    //   });
+    // });
   }
+  // throw new BadRequestError(
+  //   'Переданы некорректные данные для обновления информации о пользователе',
+  // );
 };
 
-module.exports.updateUserAvatar = (req, res) => {
+module.exports.updateUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
   if (avatar) {
     User.findByIdAndUpdate(
@@ -151,44 +144,60 @@ module.exports.updateUserAvatar = (req, res) => {
     )
       .orFail()
       .then((user) => res.send(user))
-      .catch((err) => {
-        if (err.name === 'ValidationError') {
-          return res.status(err400).send({
-            message:
-              'Переданы некорректные данные для обновления аватара пользователя',
-          });
-        }
-        if (err.name === 'DocumentNotFoundError') {
-          return res.status(err404).send({
-            message: `Пользователь с id: ${req.user._id} не найден.`,
-          });
-        }
-        return res.status(err500).send({
-          message: 'Произошла ошибка при обновлении аватара пользователя.',
-        });
-      });
+      .catch(next);
+    // .catch((err) => {
+    //   if (err.name === 'ValidationError') {
+    //     return res.status(err400).send({
+    //       message:
+    //         'Переданы некорректные данные для обновления аватара пользователя',
+    //     });
+    //   }
+    //   if (err.name === 'DocumentNotFoundError') {
+    //     return res.status(err404).send({
+    //       message: `Пользователь с id: ${req.user._id} не найден.`,
+    //     });
+    //   }
+    //   return res.status(err500).send({
+    //     message: 'Произошла ошибка при обновлении аватара пользователя.',
+    //   });
+    // });
   }
 };
 
-module.exports.deleteUser = (req, res) => {
-  User.findByIdAndRemove(req.params.userId)
-    .orFail()
-    .then(() => res.send({ message: `Пользователь c id: ${req.params.userId} удалён.` }))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        return res
-          .status(err404)
-          .send({ message: 'Запрашиваемый пользователь не найден.' });
+module.exports.deleteUser = (req, res, next) => {
+  User.findById(req.params.userId)
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError('Запрашиваемый пользователь не найден.');
       }
-      if (err.name === 'DocumentNotFoundError') {
-        return res.status(err404).send({
-          message: `Пользователь с id: ${req.user._id} не найден.`,
-        });
-      }
-      return res.status(err500).send({
-        message: 'Ошибка при удалении пользователя',
-      });
-    });
+      return user.remove();
+    })
+    .then(() => {
+      res
+        .status(200)
+        .send({ message: `Пользователь c id: ${req.params.userId} удалён.` });
+    })
+    .catch(next);
+  // User.findByIdAndRemove(req.params.userId)
+  //   .orFail()
+  //   .then(() =>
+  //     res.send({ message: `Пользователь c id: ${req.params.userId} удалён.` })
+  //   ).catch(next)
+  // .catch((err) => {
+  //   if (err.name === 'CastError') {
+  //     return res
+  //       .status(err404)
+  //       .send({ message: 'Запрашиваемый пользователь не найден.' });
+  //   }
+  //   if (err.name === 'DocumentNotFoundError') {
+  //     return res.status(err404).send({
+  //       message: `Пользователь с id: ${req.user._id} не найден.`,
+  //     });
+  //   }
+  //   return res.status(err500).send({
+  //     message: 'Ошибка при удалении пользователя',
+  //   });
+  // });
 };
 
 module.exports.login = (req, res) => {
@@ -204,7 +213,10 @@ module.exports.login = (req, res) => {
         NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
         { expiresIn: '7d' },
       );
-      res
+      if (!token) {
+        throw new UnauthorizedError('Ошибка создания');
+      }
+      return res
         .cookie('jwt', token, {
           maxAge: 3600000 * 7,
           httpOnly: true,

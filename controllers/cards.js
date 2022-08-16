@@ -1,34 +1,38 @@
 const Card = require('../models/card');
-const { err400, err404, err500 } = require('../utils/constants');
 const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
 const ForbiddenError = require('../errors/ForbiddenError');
-const InternalServerError = require('../errors/InternalServerError');
-const UnauthorizedError = require('../errors/UnauthorizedError');
 
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
+  if (!name || !link) {
+    throw new BadRequestError(
+      'Переданы некорректные данные для создания карточки',
+    );
+  }
   const owner = req.user._id;
   Card.create({ name, link, owner })
     .then((card) => res.send(card))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(err400).send({
-          message: 'переданы некорректные данные для создания карточки',
-        });
-      }
-      return res.status(err500).send({
-        message: 'Произошла ошибка создания карточки.',
-      });
-    });
+    .catch(next);
+  // .catch((err) => {
+  //   if (err.name === 'ValidationError') {
+  //     return res.status(err400).send({
+  //       message: 'переданы некорректные данные для создания карточки',
+  //     });
+  //   }
+  //   return res.status(err500).send({
+  //     message: 'Произошла ошибка создания карточки.',
+  //   });
+  // });
 };
 
-module.exports.getCard = (req, res) => {
+module.exports.getCard = (req, res, next) => {
   Card.find({})
     .then((card) => res.send(card))
-    .catch(() => res
-      .status(err500)
-      .send({ message: 'Произошла ошибка при получении карточек.' }));
+    .catch(next);
+  // .catch(() => res
+  //   .status(err500)
+  //   .send({ message: 'Произошла ошибка при получении карточек.' }));
 };
 
 module.exports.deleteCard = (req, res, next) => {
@@ -50,7 +54,7 @@ module.exports.deleteCard = (req, res, next) => {
     .catch(next);
 };
 
-module.exports.likeCard = (req, res) => Card.findByIdAndUpdate(
+module.exports.likeCard = (req, res, next) => Card.findByIdAndUpdate(
   req.params.cardId,
   { $addToSet: { likes: req.user._id } },
   { new: true },
@@ -59,23 +63,24 @@ module.exports.likeCard = (req, res) => Card.findByIdAndUpdate(
   .then((card) => {
     res.send(card);
   })
-  .catch((err) => {
-    if (err && err.name === 'CastError') {
-      return res
-        .status(err400)
-        .send({ message: 'Передан неверный id карточки' });
-    }
-    if (err.name === 'DocumentNotFoundError') {
-      return res
-        .status(err404)
-        .send({ message: 'Запрашиваемая карточка не найдена.' });
-    }
-    return res
-      .status(err500)
-      .send({ message: 'Произошла ошибка при постановке лайка.' });
-  });
+  .catch(next);
+// .catch((err) => {
+//   if (err && err.name === 'CastError') {
+//     return res
+//       .status(err400)
+//       .send({ message: 'Передан неверный id карточки' });
+//   }
+//   if (err.name === 'DocumentNotFoundError') {
+//     return res
+//       .status(err404)
+//       .send({ message: 'Запрашиваемая карточка не найдена.' });
+//   }
+//   return res
+//     .status(err500)
+//     .send({ message: 'Произошла ошибка при постановке лайка.' });
+// });
 
-module.exports.dislikeCard = (req, res) => Card.findByIdAndUpdate(
+module.exports.dislikeCard = (req, res, next) => Card.findByIdAndUpdate(
   req.params.cardId,
   { $pull: { likes: req.user._id } },
   { new: true },
@@ -84,18 +89,19 @@ module.exports.dislikeCard = (req, res) => Card.findByIdAndUpdate(
   .then((card) => {
     res.send(card);
   })
-  .catch((err) => {
-    if (err && err.name === 'CastError') {
-      return res
-        .status(err400)
-        .send({ message: 'Передан неверный id карточки' });
-    }
-    if (err.name === 'DocumentNotFoundError') {
-      return res
-        .status(err404)
-        .send({ message: 'Запрашиваемая карточка не найдена.' });
-    }
-    return res
-      .status(err500)
-      .send({ message: 'Произошла ошибка при снятии лайка.' });
-  });
+  .catch(next);
+// .catch((err) => {
+//   if (err && err.name === 'CastError') {
+//     return res
+//       .status(err400)
+//       .send({ message: 'Передан неверный id карточки' });
+//   }
+//   if (err.name === 'DocumentNotFoundError') {
+//     return res
+//       .status(err404)
+//       .send({ message: 'Запрашиваемая карточка не найдена.' });
+//   }
+//   return res
+//     .status(err500)
+//     .send({ message: 'Произошла ошибка при снятии лайка.' });
+// });

@@ -19,4 +19,5 @@ module.exports = (req, res, next) => {
     return res.status(401).send({ message: `Неверный токен ${err}` });
   }
   next();
+  return req.user;
 };
