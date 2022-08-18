@@ -11,12 +11,11 @@ const { PORT = 3000 } = process.env;
 const app = express();
 const cardRouter = require('./routes/cards');
 const userRouter = require('./routes/users');
-const { err404 } = require('./utils/constants');
 const {
   loginUserValidator,
   createUserValidator,
 } = require('./middlewares/dataValidation');
-const InternalServerError = require('./errors/InternalServerError');
+const NotFoundError = require('./errors/NotFoundError');
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
@@ -35,13 +34,17 @@ app.post(
 
 app.use('/users', auth, userRouter);
 app.use('/cards', auth, cardRouter);
-app.use('/*', auth, (req, res) => {
-  res.status(err404).send({ message: 'Упс! Такой страницы не существует' });
+app.use('/*', auth, (req, res, next) => {
+  next(new NotFoundError('Упс! Такой страницы не существует'));
 });
 app.use(errors());
 
 app.use((err, req, res, next) => {
   errorCatcher(err, res);
-  next(() => new InternalServerError('На сервере произошла ошибка'));
+  const { statusCode = 500, message } = err;
+  res.status(statusCode).send({
+    message: statusCode === 500 ? 'На сервере произошла ошибка' : message,
+  });
+  next();
 });
 app.listen(PORT);

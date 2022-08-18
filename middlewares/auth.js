@@ -6,6 +6,9 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 
 module.exports = (req, res, next) => {
   const token = req.cookies.jwt;
+  if (!token) {
+    throw new BadRequestError('Токен не найден');
+  }
   let tokenVerefy;
 
   try {
@@ -20,5 +23,4 @@ module.exports = (req, res, next) => {
     throw new BadRequestError(`Неверный токен ${err}`);
   }
   next();
-  return req.user;
 };
