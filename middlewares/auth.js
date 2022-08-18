@@ -1,5 +1,6 @@
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
+const BadRequestError = require('../errors/BadRequestError');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
@@ -16,7 +17,7 @@ module.exports = (req, res, next) => {
       req.user = tokenVerefy;
     }
   } catch (err) {
-    return res.status(401).send({ message: `Неверный токен ${err}` });
+    throw new BadRequestError(`Неверный токен ${err}`);
   }
   next();
   return req.user;

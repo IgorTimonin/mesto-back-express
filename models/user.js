@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const validator = require('validator');
+const { linkRegExPattern } = require('../utils/constants');
 
 const userSchema = new mongoose.Schema(
   {
@@ -29,6 +31,7 @@ const userSchema = new mongoose.Schema(
     },
     avatar: {
       type: String,
+      validate: linkRegExPattern,
       default:
         'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
     },
@@ -36,20 +39,17 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
+      validation: validator.isEmail,
     },
     password: {
       type: String,
       required: true,
-      minlength: [
-        8,
-        'Пароль должен быть длиннее 8-ми символов, его длина {VALUE} символ(ов)',
-      ],
       select: false,
     },
   },
   {
     versionKey: false,
-  },
+  }
 );
 
 userSchema.statics.findUserByCredentials = function userValidation(email, password) {

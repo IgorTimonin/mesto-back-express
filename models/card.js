@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { linkRegExPattern } = require('../utils/constants');
 
 const cardSchema = new mongoose.Schema(
   {
@@ -17,6 +18,7 @@ const cardSchema = new mongoose.Schema(
     link: {
       type: String,
       required: true,
+      validate: linkRegExPattern,
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
@@ -34,6 +36,6 @@ const cardSchema = new mongoose.Schema(
   },
   {
     versionKey: false,
-  },
+  }
 );
 module.exports = mongoose.model('card', cardSchema);
