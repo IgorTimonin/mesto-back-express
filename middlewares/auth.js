@@ -1,13 +1,13 @@
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
-const BadRequestError = require('../errors/BadRequestError');
+const UnauthorizedError = require('../errors/UnauthorizedError');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
 module.exports = (req, res, next) => {
   const token = req.cookies.jwt;
   if (!token) {
-    throw new BadRequestError('Токен не найден');
+    throw new UnauthorizedError('Требуется аутентификация');
   }
   let tokenVerefy;
 
@@ -20,7 +20,7 @@ module.exports = (req, res, next) => {
       req.user = tokenVerefy;
     }
   } catch (err) {
-    throw new BadRequestError(`Неверный токен ${err}`);
+    throw new UnauthorizedError(`Неверный токен ${err}`);
   }
   next();
 };

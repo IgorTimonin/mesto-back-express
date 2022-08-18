@@ -168,10 +168,10 @@ module.exports.login = (req, res, next) => {
       const token = jwt.sign(
         { _id: user._id },
         NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
-        { expiresIn: '7d' },
+        { expiresIn: '7d' }
       );
       if (!token) {
-        throw new UnauthorizedError('Ошибка создания');
+        throw new UnauthorizedError('Ошибка при создании токена');
       }
       return res
         .cookie('jwt', token, {
@@ -182,5 +182,5 @@ module.exports.login = (req, res, next) => {
         .status(200)
         .send({ message: 'Успешный вход' });
     })
-    .catch((err) => next(err.status(401)));
+    .catch(() => next(new UnauthorizedError('Ошибка аутентификации')));
 };
