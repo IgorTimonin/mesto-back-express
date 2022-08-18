@@ -1,5 +1,4 @@
 require('dotenv').config();
-const validator = require('validator');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { SALT_ROUND } = require('../configs');
@@ -8,11 +7,14 @@ const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 const ConflictError = require('../errors/ConflictError');
+const { ConnectionStates } = require('mongoose');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
 module.exports.createUser = (req, res, next) => {
-  const { name, about, avatar, email, password } = req.body;
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
   return bcrypt
     .hash(password, SALT_ROUND)
     .then((hash) => {
@@ -23,15 +25,13 @@ module.exports.createUser = (req, res, next) => {
         email,
         password: hash,
       })
-        .then(({ _id }) =>
-          res.send({
-            name,
-            about,
-            avatar,
-            email,
-            _id,
-          })
-        )
+        .then(({ _id }) => res.send({
+          name,
+          about,
+          avatar,
+          email,
+          _id,
+        }))
         .catch((err) => {
           if (err.code === 11000) {
             next(new ConflictError('Пользователь c этим email уже существует'));
@@ -40,8 +40,8 @@ module.exports.createUser = (req, res, next) => {
               new BadRequestError(
                 `${Object.values(err.errors)
                   .map((error) => error.massage)
-                  .join(', ')}`
-              )
+                  .join(', ')}`,
+              ),
             );
           } else {
             next(err);
@@ -52,8 +52,8 @@ module.exports.createUser = (req, res, next) => {
       if (err.name === 'ValidationError') {
         next(
           new BadRequestError(
-            'Переданы некорректные данные для создания пользователя'
-          )
+            'Переданы некорректные данные для создания пользователя',
+          ),
         );
       } else {
         next(err);
@@ -76,7 +76,7 @@ module.exports.getUserById = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'DocumentNotFoundError') {
         throw new NotFoundError(
-          `Пользователь с id: ${req.params.userId} не найден.`
+          `Пользователь с id: ${req.params.userId} не найден.`,
         );
       }
       if (err.name === 'CastError') {
@@ -91,7 +91,7 @@ module.exports.getUserById = (req, res, next) => {
 module.exports.getMe = (req, res, next) => {
   User.findById(req.user._id)
     .orFail(
-      () => new NotFoundError(`Пользователь с id: ${req.user._id} не найден.`)
+      () => new NotFoundError(`Пользователь с id: ${req.user._id} не найден.`),
     )
     .then((user) => {
       res.send(user);
@@ -116,7 +116,7 @@ module.exports.updateUserProfile = (req, res, next) => {
     {
       new: true,
       runValidators: true,
-    }
+    },
   )
     .orFail()
     .then((user) => res.send(user))
@@ -124,8 +124,8 @@ module.exports.updateUserProfile = (req, res, next) => {
       if (err.name === 'ValidationError') {
         next(
           new BadRequestError(
-            'Переданы некорректные данные для обновления информации о пользователе'
-          )
+            'Переданы некорректные данные для обновления информации о пользователе',
+          ),
         );
       } else {
         next(err);
@@ -141,7 +141,7 @@ module.exports.updateUserAvatar = (req, res, next) => {
     {
       new: true,
       runValidators: true,
-    }
+    },
   )
     .orFail()
     .then((user) => res.send(user))
@@ -149,8 +149,8 @@ module.exports.updateUserAvatar = (req, res, next) => {
       if (err.name === 'ValidationError') {
         next(
           new BadRequestError(
-            'Переданы некорректные данные для обновления аватара'
-          )
+            'Переданы некорректные данные для обновления аватара',
+          ),
         );
       } else {
         next(err);
@@ -169,7 +169,7 @@ module.exports.login = (req, res, next) => {
       const token = jwt.sign(
         { _id: user._id },
         NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
-        { expiresIn: '7d' }
+        { expiresIn: '7d' },
       );
       if (!token) {
         throw new UnauthorizedError('Ошибка создания');
@@ -183,7 +183,4 @@ module.exports.login = (req, res, next) => {
         .status(200)
         .send({ message: 'Успешный вход' });
     })
-    .catch(
-      next(res.status(401)),
-    );
-};
+    .catch((err) => next(err.status(401)))};

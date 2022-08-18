@@ -14,7 +14,7 @@ const {
 } = require('../controllers/users');
 
 userRouter.get('/', getAllUsers);
-userRouter.get('/me', celebrate(userIdValidator), getMe);
+userRouter.get('/me', getMe);
 userRouter.get('/:userId', celebrate(userIdValidator), getUserById);
 userRouter.patch('/me', celebrate(updateUserValidator), updateUserProfile);
 userRouter.patch(

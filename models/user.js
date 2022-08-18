@@ -49,7 +49,7 @@ const userSchema = new mongoose.Schema(
   },
   {
     versionKey: false,
-  }
+  },
 );
 
 userSchema.statics.findUserByCredentials = function userValidation(email, password) {
