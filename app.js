@@ -5,7 +5,7 @@ const cookieParser = require('cookie-parser');
 const { celebrate, errors } = require('celebrate');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
-const { errorCatcher } = require('./middlewares/errorCatcher');
+// const { errorCatcher } = require('./middlewares/errorCatcher');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -40,7 +40,7 @@ app.use('/*', auth, (req, res, next) => {
 app.use(errors());
 
 app.use((err, req, res, next) => {
-  errorCatcher(err, res);
+  // errorCatcher(err, res);
   const { statusCode = 500, message } = err;
   res.status(statusCode).send({
     message: statusCode === 500 ? 'На сервере произошла ошибка' : message,

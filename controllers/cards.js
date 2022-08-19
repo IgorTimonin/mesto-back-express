@@ -51,7 +51,7 @@ module.exports.likeCard = (req, res, next) => Card.findByIdAndUpdate(
   { $addToSet: { likes: req.user._id } },
   { new: true },
 )
-  .orFail()
+  .orFail(() => next(new NotFoundError('Карточка с указанным id не найдена')))
   .then((card) => {
     res.send(card);
   })
@@ -63,6 +63,7 @@ module.exports.dislikeCard = (req, res, next) => Card.findByIdAndUpdate(
   { new: true },
 )
   .orFail()
+  .orFail(() => next(new NotFoundError('Карточка с указанным id не найдена')))
   .then((card) => {
     res.send(card);
   })

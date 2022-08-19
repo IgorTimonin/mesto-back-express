@@ -33,7 +33,7 @@ module.exports.createUser = (req, res, next) => {
         }))
         .catch((err) => {
           if (err.code === 11000) {
-            next(new ConflictError('Пользователь c этим email уже существует'));
+            next(new ConflictError('Пользователь c таким email уже существует'));
           } else if (err.name === 'ValidationError') {
             next(
               new BadRequestError(
@@ -47,17 +47,7 @@ module.exports.createUser = (req, res, next) => {
           }
         });
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(
-          new BadRequestError(
-            'Переданы некорректные данные для создания пользователя',
-          ),
-        );
-      } else {
-        next(err);
-      }
-    });
+    .catch(next);
 };
 
 module.exports.getAllUsers = (req, res, next) => {
@@ -68,43 +58,36 @@ module.exports.getAllUsers = (req, res, next) => {
 
 module.exports.getUserById = (req, res, next) => {
   User.findById(req.params.userId)
-    .orFail()
-    .then((user) => {
-      res.send(user);
-    })
-    .catch((err) => {
-      if (err.name === 'DocumentNotFoundError') {
-        throw new NotFoundError(
-          `Пользователь с id: ${req.params.userId} не найден.`,
-        );
-      }
-      if (err.name === 'CastError') {
-        throw new BadRequestError('Передан неверный id пользователя');
-      } else {
-        next(err);
-      }
-    })
-    .catch(next);
-};
-
-module.exports.getMe = (req, res, next) => {
-  User.findById(req.user._id)
     .orFail(
-      () => new NotFoundError(`Пользователь с id: ${req.user._id} не найден.`),
+      () => next(new NotFoundError(`Пользователь с id: ${req.user._id} не найден.`)),
     )
     .then((user) => {
       res.send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new BadRequestError('Передан неверный id пользователя');
-      } else if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные пользователя'));
+        next(new BadRequestError('Передан неверный id пользователя'));
       } else {
         next(err);
       }
+    });
+};
+
+module.exports.getMe = (req, res, next) => {
+  User.findById(req.user._id)
+    .orFail(
+      () => next(new NotFoundError(`Пользователь с id: ${req.user._id} не найден.`)),
+    )
+    .then((user) => {
+      res.send(user);
     })
-    .catch(next);
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Передан неверный id пользователя'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 module.exports.updateUserProfile = (req, res, next) => {
@@ -117,7 +100,9 @@ module.exports.updateUserProfile = (req, res, next) => {
       runValidators: true,
     },
   )
-    .orFail()
+    .orFail(
+      () => next(new NotFoundError(`Пользователь с id: ${req.user._id} не найден.`)),
+    )
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -142,7 +127,9 @@ module.exports.updateUserAvatar = (req, res, next) => {
       runValidators: true,
     },
   )
-    .orFail()
+    .orFail(
+      () => next(new NotFoundError('Пользователь не найден.')),
+    )
     .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -171,7 +158,7 @@ module.exports.login = (req, res, next) => {
         { expiresIn: '7d' },
       );
       if (!token) {
-        throw new UnauthorizedError('Ошибка при создании токена');
+        next(new UnauthorizedError('Ошибка при создании токена'));
       }
       return res
         .cookie('jwt', token, {
