@@ -1,29 +1,19 @@
-[![Tests for sprint 13](https://github.com/IgorTimonin/express-mesto-gha/actions/workflows/tests-13-sprint.yml/badge.svg)](https://github.com/IgorTimonin/express-mesto-gha/actions/workflows/tests-13-sprint.yml) 
-
-[![Tests for sprint 14](https://github.com/IgorTimonin/express-mesto-gha/actions/workflows/tests-14-sprint.yml/badge.svg)](https://github.com/IgorTimonin/express-mesto-gha/actions/workflows/tests-14-sprint.yml)
 # Проект Mesto фронтенд + бэкенд
 
+## Адрес сервера
 
-
-## Настройка бейджей статуса тестов
-Перед началом работы над проектом рекомендуется исправить бейджи, отражающие статус прохождения тестов.
-Для этого замените разметку бейджей на следующий фрагмент, подставив вместо `${имя_пользователя}` и `${имя_репозитория}` соответствующие значения.
-
-```
-[![Tests for sprint 13](https://github.com/IgorTimonin/express-mesto-gha/actions/workflows/tests-13-sprint.yml/badge.svg)](https://github.com/IgorTimonin/express-mesto-gha/actions/workflows/tests-13-sprint.yml) 
-
-[![Tests for sprint 14](https://github.com/IgorTimonin/express-mesto-gha/actions/workflows/tests-14-sprint.yml/badge.svg)](https://github.com/IgorTimonin/express-mesto-gha/actions/workflows/tests-14-sprint.yml)
-```
-
+`158.160.11.33` - ip адрес сервера
+`https://itmesto.students.nomoredomains.sbs` - адрес frontend
+`https://api.itmesto.students.nomoredomains.sbs` - адрес api
 
 ## Директории
 
 `/routes` — папка с файлами роутера  
 `/controllers` — папка с файлами контроллеров пользователя и карточки   
-`/models` — папка с файлами описания схем пользователя и карточки  
-  
-Остальные директории вспомогательные, создаются при необходимости разработчиком
-
+`/models` — папка с файлами описания схем пользователя и карточки 
+`/errors` — папка с файлами описывающими ошибки
+`/middlewares` — папка с мидлварами
+`/utils` — папка с вспомогательными файлами (константы и т.п.)
 ## Запуск проекта
 
 `npm run start` — запускает сервер   
