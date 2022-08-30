@@ -160,12 +160,22 @@ module.exports.login = (req, res, next) => {
       if (!token) {
         next(new UnauthorizedError('Ошибка при создании токена'));
       }
+      // let sessionToken = 1;
       return res
         .cookie('jwt', token, {
+          domain: '.localhost',
           maxAge: 3600000 * 7,
           httpOnly: true,
           sameSite: true,
         })
+        // .cookie('sessionToken', sessionToken, {
+        //   domain: '.localhost',
+        //   maxAge: 3600000 * 7,
+        //   httpOnly: false,
+        //   sameSite: true,
+
+          // domain: 'http://localhost:3000',
+        // })
         .status(200)
         .send({ message: 'Успешный вход' });
     })
