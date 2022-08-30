@@ -36,13 +36,18 @@ app.post(
   celebrate(createUserValidator),
   createUser,
 );
-
+// app.get('/crash-test', auth, () => {
+//   setTimeout(() => {
+//     throw new Error('Сервер сейчас упадёт');
+//   }, 0);
+// });
 app.use('/users', auth, userRouter);
 app.use('/cards', auth, cardRouter);
 app.use('/*', auth, (req, res, next) => {
   next(new NotFoundError('Упс! Такой страницы не существует'));
 });
 app.use(errors());
+
 
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
